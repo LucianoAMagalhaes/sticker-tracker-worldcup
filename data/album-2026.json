@@ -1,0 +1,155 @@
+{
+  "id": "2026",
+  "name": "Copa do Mundo 2026",
+  "shortName": "Copa 2026",
+  "year": 2026,
+  "totalStickers": 992,
+  "selectionStickerLayout": [
+    { "number": 1, "type": "team" },
+    { "number": 2, "type": "shield" },
+    { "rangeStart": 3, "rangeEnd": 20, "type": "player" }
+  ],
+  "groups": [
+    {
+      "id": "A",
+      "name": "Grupo A",
+      "selections": [
+        { "code": "MEX", "name": "México" },
+        { "code": "RSA", "name": "África do Sul" },
+        { "code": "KOR", "name": "Coreia do Sul" },
+        { "code": "CZE", "name": "República Tcheca" }
+      ]
+    },
+    {
+      "id": "B",
+      "name": "Grupo B",
+      "selections": [
+        { "code": "CAN", "name": "Canadá" },
+        { "code": "BIH", "name": "Bósnia e Herzegovina" },
+        { "code": "QAT", "name": "Catar" },
+        { "code": "SUI", "name": "Suíça" }
+      ]
+    },
+    {
+      "id": "C",
+      "name": "Grupo C",
+      "selections": [
+        { "code": "BRA", "name": "Brasil" },
+        { "code": "MAR", "name": "Marrocos" },
+        { "code": "HAI", "name": "Haiti" },
+        { "code": "SCO", "name": "Escócia" }
+      ]
+    },
+    {
+      "id": "D",
+      "name": "Grupo D",
+      "selections": [
+        { "code": "USA", "name": "Estados Unidos" },
+        { "code": "PAR", "name": "Paraguai" },
+        { "code": "AUS", "name": "Austrália" },
+        { "code": "TUR", "name": "Turquia" }
+      ]
+    },
+    {
+      "id": "E",
+      "name": "Grupo E",
+      "selections": [
+        { "code": "GER", "name": "Alemanha" },
+        { "code": "CUW", "name": "Curaçao" },
+        { "code": "CIV", "name": "Costa do Marfim" },
+        { "code": "ECU", "name": "Equador" }
+      ]
+    },
+    {
+      "id": "F",
+      "name": "Grupo F",
+      "selections": [
+        { "code": "NED", "name": "Holanda" },
+        { "code": "JPN", "name": "Japão" },
+        { "code": "SWE", "name": "Suécia" },
+        { "code": "TUN", "name": "Tunísia" }
+      ]
+    },
+    {
+      "id": "G",
+      "name": "Grupo G",
+      "selections": [
+        { "code": "BEL", "name": "Bélgica" },
+        { "code": "EGY", "name": "Egito" },
+        { "code": "IRN", "name": "Irã" },
+        { "code": "NZL", "name": "Nova Zelândia" }
+      ]
+    },
+    {
+      "id": "H",
+      "name": "Grupo H",
+      "selections": [
+        { "code": "ESP", "name": "Espanha" },
+        { "code": "CPV", "name": "Cabo Verde" },
+        { "code": "KSA", "name": "Arábia Saudita" },
+        { "code": "URU", "name": "Uruguai" }
+      ]
+    },
+    {
+      "id": "I",
+      "name": "Grupo I",
+      "selections": [
+        { "code": "FRA", "name": "França" },
+        { "code": "SEN", "name": "Senegal" },
+        { "code": "IRQ", "name": "Iraque" },
+        { "code": "NOR", "name": "Noruega" }
+      ]
+    },
+    {
+      "id": "J",
+      "name": "Grupo J",
+      "selections": [
+        { "code": "ARG", "name": "Argentina" },
+        { "code": "ALG", "name": "Argélia" },
+        { "code": "AUT", "name": "Áustria" },
+        { "code": "JOR", "name": "Jordânia" }
+      ]
+    },
+    {
+      "id": "K",
+      "name": "Grupo K",
+      "selections": [
+        { "code": "POR", "name": "Portugal" },
+        { "code": "COD", "name": "RD Congo" },
+        { "code": "UZB", "name": "Uzbequistão" },
+        { "code": "COL", "name": "Colômbia" }
+      ]
+    },
+    {
+      "id": "L",
+      "name": "Grupo L",
+      "selections": [
+        { "code": "ENG", "name": "Inglaterra" },
+        { "code": "CRO", "name": "Croácia" },
+        { "code": "GHA", "name": "Gana" },
+        { "code": "PAN", "name": "Panamá" }
+      ]
+    }
+  ],
+  "specials": [
+    {
+      "id": "intro",
+      "name": "Introduction",
+      "type": "general",
+      "ids": ["FWC1", "FWC2", "FWC3", "FWC4", "FWC5", "FWC6", "FWC7", "FWC8", "FWC9"]
+    },
+    {
+      "id": "museum",
+      "name": "FIFA Museum",
+      "type": "general",
+      "ids": ["FWC10", "FWC11", "FWC12", "FWC13", "FWC14", "FWC15", "FWC16", "FWC17", "FWC18", "FWC19", "FWC20"]
+    },
+    {
+      "id": "coca",
+      "name": "Coca-Cola",
+      "prefix": "C",
+      "type": "coca",
+      "count": 12
+    }
+  ]
+}

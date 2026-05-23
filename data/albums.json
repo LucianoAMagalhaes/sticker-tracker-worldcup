@@ -1,6 +1,13 @@
 {
-  "defaultAlbumId": "2022",
+  "defaultAlbumId": "2026",
   "albums": [
+    {
+      "id": "2026",
+      "name": "Copa do Mundo 2026",
+      "shortName": "Copa 2026",
+      "year": 2026,
+      "file": "data/album-2026.json"
+    },
     {
       "id": "2022",
       "name": "Copa do Mundo 2022",
