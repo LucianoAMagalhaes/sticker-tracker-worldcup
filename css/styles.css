@@ -90,53 +90,41 @@
   }
 }
 
-/* Theme: Copa 2026 (Panini WC26 album vibe — coral red + gold + navy) */
+/* Theme: Copa 2026 (Trionda ball — always-dark, 3-host accents)
+   Canada red as primary, USA blue as accent, Mexico green as success. */
 body[data-album="2026"] {
-  --bg: #fff9f0;
-  --surface: #ffffff;
-  --surface-muted: #fbf1dd;
-  --text: #1c1812;
-  --text-muted: #6b6155;
-  --text-faint: #a39685;
-  --border: #ece0c6;
-  --border-strong: #c9b692;
+  color-scheme: dark;
 
-  --primary: #c8102e;
-  --primary-strong: #9b0c25;
-  --primary-soft: #fde6e9;
+  --bg: #0d0e10;
+  --surface: #16181c;
+  --surface-muted: #1f2228;
+  --text: #f0f2f5;
+  --text-muted: #a8aebb;
+  --text-faint: #6b7280;
+  --border: #2a2f38;
+  --border-strong: #3a414d;
+
+  --primary: #d4233c;
+  --primary-strong: #e64054;
+  --primary-soft: #3a1118;
   --primary-on: #ffffff;
 
-  --accent: #d4a017;
+  --accent: #3b5fbf;
 
-  --success: #2e7d32;
-  --success-strong: #1b5e20;
-  --success-soft: #e8f5e9;
-  --success-border: #66bb6a;
-}
+  --success: #00a06b;
+  --success-strong: #26c489;
+  --success-soft: #0e2b22;
+  --success-border: #26a575;
 
-@media (prefers-color-scheme: dark) {
-  body[data-album="2026"] {
-    --bg: #16110b;
-    --surface: #211a12;
-    --surface-muted: #2c2317;
-    --text: #f5ead4;
-    --text-muted: #c2b08c;
-    --text-faint: #7d6f55;
-    --border: #3a2f1f;
-    --border-strong: #5a4a30;
+  --warning: #f59e0b;
+  --warning-strong: #fbbf24;
+  --warning-soft: #3a2519;
+  --warning-border: #e65100;
 
-    --primary: #e85b6f;
-    --primary-strong: #f47d8d;
-    --primary-soft: #3a1620;
-    --primary-on: #16110b;
+  --error: #ef5350;
 
-    --accent: #ecc44a;
-
-    --success: #66bb6a;
-    --success-strong: #a5d6a7;
-    --success-soft: #1f3220;
-    --success-border: #2e7d32;
-  }
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
 *,
