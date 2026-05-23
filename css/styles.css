@@ -145,6 +145,69 @@ body {
   font-style: italic;
 }
 
+.content__meta {
+  margin: 0 0 0.75rem;
+  color: #6b6b6b;
+  font-size: 0.875rem;
+}
+
+.sticker-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.5rem;
+}
+
+.sticker {
+  aspect-ratio: 3 / 4;
+  border-radius: 6px;
+  border: 1px dashed #cfcfcf;
+  background: #fafafa;
+  padding: 0.5rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  color: #8a8a8a;
+  user-select: none;
+}
+
+.sticker__code {
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.sticker__type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a5a5a5;
+}
+
+.sticker--team {
+  border-color: #b9d2ff;
+}
+
+.sticker--shield {
+  border-color: #f5cdb5;
+}
+
+.sticker--general {
+  border-color: #d8c1ee;
+}
+
+.sticker--coca {
+  border-color: #ef9a9a;
+}
+
+.sticker--special {
+  border-color: #f6e58d;
+}
+
 @media (max-width: 768px) {
   .site-main {
     grid-template-columns: 1fr;

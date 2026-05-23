@@ -1,6 +1,15 @@
 const ALBUM_DATA_URL = "data/album.json";
 const SPECIAL_PREFIX = "special:";
 
+const TYPE_LABELS = {
+  team: "Time",
+  shield: "Escudo",
+  player: "Jogador",
+  general: "Geral",
+  coca: "Coca-Cola",
+  special: "Especial",
+};
+
 let activeSectionId = null;
 
 async function loadAlbum() {
@@ -11,8 +20,36 @@ async function loadAlbum() {
   return response.json();
 }
 
+function getSelectionStickers(selection, layout) {
+  const stickers = [];
+  for (const rule of layout) {
+    if (typeof rule.number === "number") {
+      stickers.push({ id: `${selection.code}${rule.number}`, type: rule.type });
+    } else if (typeof rule.rangeStart === "number") {
+      for (let n = rule.rangeStart; n <= rule.rangeEnd; n++) {
+        stickers.push({ id: `${selection.code}${n}`, type: rule.type });
+      }
+    }
+  }
+  return stickers;
+}
+
+function getSpecialStickers(special) {
+  if (Array.isArray(special.ids)) {
+    return special.ids.map((id) => ({ id, type: special.type }));
+  }
+  if (special.prefix && typeof special.count === "number") {
+    return Array.from({ length: special.count }, (_, i) => ({
+      id: `${special.prefix}${i + 1}`,
+      type: special.type,
+    }));
+  }
+  return [];
+}
+
 function buildSectionsIndex(album) {
   const sections = new Map();
+
   for (const group of album.groups) {
     for (const selection of group.selections) {
       sections.set(selection.code, {
@@ -21,17 +58,21 @@ function buildSectionsIndex(album) {
         name: selection.name,
         groupId: group.id,
         groupName: group.name,
+        stickers: getSelectionStickers(selection, album.selectionStickerLayout),
       });
     }
   }
+
   for (const special of album.specials) {
     const id = `${SPECIAL_PREFIX}${special.id}`;
     sections.set(id, {
       kind: "special",
       id,
       name: special.name,
+      stickers: getSpecialStickers(special),
     });
   }
+
   return sections;
 }
 
@@ -78,16 +119,31 @@ function renderNav(album) {
   nav.innerHTML = groupsHtml + specialsHtml;
 }
 
+function stickerCardHtml(sticker) {
+  const typeLabel = TYPE_LABELS[sticker.type] ?? "";
+  return `
+    <li class="sticker sticker--${sticker.type}" data-sticker-id="${sticker.id}">
+      <span class="sticker__code">${sticker.id}</span>
+      <span class="sticker__type">${typeLabel}</span>
+    </li>
+  `;
+}
+
+function renderStickers(section) {
+  const container = document.getElementById("stickers-container");
+  const count = section.stickers.length;
+  container.innerHTML = `
+    <p class="content__meta">${count} ${count === 1 ? "figurinha" : "figurinhas"}</p>
+    <ul class="sticker-grid">${section.stickers.map(stickerCardHtml).join("")}</ul>
+  `;
+}
+
 function renderContent(section) {
   const title = document.getElementById("content-title");
-  const stickers = document.getElementById("stickers-container");
-
   title.textContent = section.kind === "selection"
     ? `${section.name} — ${section.groupName}`
     : section.name;
-
-  stickers.innerHTML =
-    '<p class="content__placeholder">As figurinhas aparecerão aqui em breve.</p>';
+  renderStickers(section);
 }
 
 function setActiveSection(sectionId, sections) {
