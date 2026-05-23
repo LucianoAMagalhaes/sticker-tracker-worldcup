@@ -90,6 +90,55 @@
   }
 }
 
+/* Theme: Copa 2026 (FIFA 26 official brand — eletric blue + magenta + teal) */
+body[data-album="2026"] {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-muted: #e8eef7;
+  --text: #0f1a2e;
+  --text-muted: #5b6373;
+  --text-faint: #9098a8;
+  --border: #dbe3f0;
+  --border-strong: #b9c4d8;
+
+  --primary: #1a4cd6;
+  --primary-strong: #0e36a3;
+  --primary-soft: #e3eaf9;
+  --primary-on: #ffffff;
+
+  --accent: #ff3d8b;
+
+  --success: #00b388;
+  --success-strong: #008c69;
+  --success-soft: #dff7ee;
+  --success-border: #26d1a4;
+}
+
+@media (prefers-color-scheme: dark) {
+  body[data-album="2026"] {
+    --bg: #0f1426;
+    --surface: #1a2138;
+    --surface-muted: #222b45;
+    --text: #eef0f8;
+    --text-muted: #9aa4ba;
+    --text-faint: #646c7e;
+    --border: #2a3554;
+    --border-strong: #3e4a6c;
+
+    --primary: #5b87ea;
+    --primary-strong: #7fa3f0;
+    --primary-soft: #1a2647;
+    --primary-on: #0f1426;
+
+    --accent: #ff6ea8;
+
+    --success: #26d1a4;
+    --success-strong: #5fdab9;
+    --success-soft: #0d2922;
+    --success-border: #00b388;
+  }
+}
+
 *,
 *::before,
 *::after {
