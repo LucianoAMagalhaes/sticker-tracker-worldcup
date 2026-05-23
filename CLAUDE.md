@@ -2,7 +2,7 @@
 
 ## Visão do Projeto
 
-Aplicativo web simples para gerenciar coleções de figurinhas dos álbuns Panini da Copa do Mundo, organizado por seleção. Controla quais figurinhas o usuário já possui, quais estão faltando e quais são repetidas (para troca). Suporta múltiplos álbuns (Copa 2022 já incluído; Copa 2026 em andamento), com seletor no header e coleções separadas por álbum.
+Aplicativo web simples para gerenciar coleções de figurinhas dos álbuns Panini da Copa do Mundo, organizado por seleção. Controla quais figurinhas o usuário já possui, quais estão faltando e quais são repetidas (para troca). Suporta múltiplos álbuns (Copa 2022 e Copa 2026 incluídos), com seletor no header e coleções separadas por álbum. Na primeira visita o app abre no álbum 2026 (definido em `data/albums.json`).
 
 ## Stack
 
@@ -19,7 +19,7 @@ Para rodar localmente: extensão **Live Server** do VS Code, `python3 -m http.se
 Publicado em GitHub Pages a partir da branch `main`:
 <https://lucianoamagalhaes.github.io/sticker-tracker-worldcup/>
 
-Cada push em `main` republica automaticamente. O repositório foi renomeado de `sticker-tracker-wordcup2022` para `sticker-tracker-worldcup` no PR `refactor/multi-album`; o GitHub redireciona operações git para a URL antiga, mas o Pages no nome antigo deixou de responder (Pages é derivado do nome do repo).
+Cada push em `main` republica automaticamente. O repositório foi renomeado de `sticker-tracker-wordcup2022` para `sticker-tracker-worldcup`; o GitHub redireciona operações git para a URL antiga, mas o Pages no nome antigo deixou de responder (Pages é derivado do nome do repo).
 
 ## Convenções
 
@@ -186,55 +186,15 @@ sticker-tracker-worldcup/
 - Responsivo (10 / 5 / 4 colunas conforme viewport)
 - A11y básica (aria-labels, aria-current, aria-pressed, focus rings, prefers-reduced-motion)
 
-## Evolução para Multi-Álbum (em andamento)
+## Contexto histórico
 
-Objetivo: transformar o app de "tracker da Copa 2022" para um **tracker de álbuns Panini da Copa do Mundo**, com o 2026 como segundo álbum suportado.
+Notas que sobrevivem ao plano original de três PRs (refactor multi-álbum + catálogo 2026 + docs) e ainda servem como referência:
 
-### Renomeação do repositório (feito)
-
-- **De**: `sticker-tracker-wordcup2022`
-- **Para**: `sticker-tracker-worldcup`
-- GitHub redireciona operações git para o nome antigo, mas a URL do Pages no nome antigo retorna 404 — o Pages depende do nome do repo e não tem redirect automático. A URL nova é `https://lucianoamagalhaes.github.io/sticker-tracker-worldcup/`.
-- O título visível do app passou a ser "Álbum da Copa do Mundo" + seletor de ano.
-
-### Pesquisa do álbum Copa 2026
-
-Levantamento feito em maio/2026 a partir de fontes Panini, FIFA, imprensa esportiva (SI, ESPN, CNN Brasil, Investnews) e checklists de colecionadores:
-
-- **Total: 980 figurinhas** em 112 páginas (maior álbum da história da Copa)
-- **48 seleções × 20 figurinhas** = 960 (mesmo layout do 2022: 1 foto do time + 1 escudo + 18 jogadores)
-- **20 especiais**: ~9 "Introduction" + ~11 "FIFA Museum" (legends/campeões anteriores)
-- **12 figurinhas Coca-Cola** promocionais (em rótulos da Coca, fora dos envelopes)
-- **12 grupos (A–L)** definidos no sorteio de 5 dez 2025 em Washington
-- Estreantes na Copa: Cabo Verde (CPV), Curaçao (CUW), Jordânia (JOR), Uzbequistão (UZB)
-- Ausência notável: Itália (eliminada na repescagem europeia pela Bósnia)
-
-**Nota sobre as "68 metalizadas"**: a imprensa brasileira fala em 68 figurinhas metalizadas (48 escudos + 16 estádios + 4 institucionais), mas isso conta os 48 escudos que **já estão dentro das páginas das seleções** (versão FOIL do slot do escudo). Não são um bloco extra — não afeta a contagem do catálogo (48×20 + 20 especiais = 980).
-
-### Plano de implementação (3 PRs)
-
-1. **`refactor/multi-album` — Refactor multi-álbum (feito)**
-   - Renomear `data/album.json` → `data/album-2022.json` e adicionar metadados `id`/`name`/`shortName`/`year`
-   - Criar `data/albums.json` (manifest com a lista de álbuns disponíveis)
-   - JS carrega o manifest e expõe seletor de álbum (dropdown no header); trocar o álbum recarrega o catálogo
-   - `localStorage` namespaceado por álbum: `sticker-tracker:<album-id>:collection`, `sticker-tracker:<album-id>:filter`, + `sticker-tracker:active-album`
-   - Migration: ler as chaves antigas (`sticker-tracker-wordcup2022:*`) no primeiro load e mover para o namespace do `2022`
-   - Renomear repo + atualizar URL no README
-
-2. **`feat/album-2026` — Catálogo da Copa 2026 (feito)**
-   - `data/album-2026.json` com os 12 grupos do sorteio oficial + 48 seleções + blocos especiais (Intro `FWC1–9`, Museum `FWC10–20`, Coca `C1–C12`)
-   - 2026 adicionado ao manifest e definido como `defaultAlbumId`
-
-3. **`docs/multi-album` — Atualização final da documentação (próximo)**
-   - Atualizar README com o novo escopo + prints do seletor multi-álbum
-   - Consolidar este CLAUDE.md (remover seção "Evolução" e integrar tudo na arquitetura corrente)
-
-### Decisões já tomadas
-
-- **UI do seletor de álbum**: dropdown no header (direita do título), com label "Álbum"
-- **Nível de completude do 2026 no PR 2**: estrutura completa com os 12 grupos do sorteio oficial
-- **Default no primeiro acesso**: 2026 (definido em `data/albums.json`)
-- **Modelagem dos especiais 2026**: Intro e FIFA Museum como dois blocos navegáveis distintos, mas compartilhando o prefixo `FWC` (1–9 e 10–20) — feito via `ids` explícito no JSON, espelhando a numeração real da Panini
+- **Renomeação do repositório**: de `sticker-tracker-wordcup2022` para `sticker-tracker-worldcup`. O GitHub redireciona operações `git` para a URL antiga, mas o Pages no nome antigo retorna 404 — Pages é derivado do nome do repo e não tem redirect automático.
+- **Pesquisa do álbum 2026 (maio/2026)**: total oficial Panini é **980 figurinhas** em 112 páginas (48×20 + 20 especiais). As 12 Coca-Cola são promocionais (em rótulos da Coca, fora dos envelopes) e foram adicionadas ao `totalStickers` por consistência com o 2022 → 992 no catálogo.
+- **Sobre as "68 metalizadas"**: imprensa brasileira fala em 68 figurinhas metalizadas (48 escudos + 16 estádios + 4 institucionais). Isso conta os 48 escudos que **já estão dentro das páginas das seleções** (versão FOIL do slot do escudo). Não são bloco extra — não afetam a contagem.
+- **Ausência notável no 2026**: Itália (eliminada na repescagem europeia pela Bósnia).
+- **Decisão sobre os especiais 2026**: Intro e FIFA Museum modelados como dois blocos navegáveis distintos compartilhando o prefixo `FWC` (1–9 e 10–20), via `ids` explícito no JSON — espelha a numeração real da Panini.
 
 ## Ideias futuras
 
