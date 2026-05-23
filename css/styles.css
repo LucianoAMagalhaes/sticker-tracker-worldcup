@@ -404,6 +404,25 @@ body {
   font-size: 0.875rem;
 }
 
+.content__meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.85rem;
+}
+
+.content__meta-row .content__meta {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.action--small {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+}
+
 .content__filters {
   display: flex;
   flex-wrap: wrap;

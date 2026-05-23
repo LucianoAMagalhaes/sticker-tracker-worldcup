@@ -4,6 +4,7 @@ const STORAGE_KEY = "sticker-tracker-wordcup2022:collection";
 const FILTER_STORAGE_KEY = "sticker-tracker-wordcup2022:filter";
 const STATUS_CYCLE = ["missing", "owned", "duplicate"];
 const DUPLICATES_VIEW_ID = "view:duplicates";
+const MISSING_VIEW_ID = "view:missing";
 const FILTERS = ["all", "missing", "owned", "duplicate"];
 
 const FILTER_LABELS = {
@@ -163,6 +164,12 @@ function buildSectionsIndex(album) {
     name: "Minhas repetidas",
   });
 
+  sections.set(MISSING_VIEW_ID, {
+    kind: "missing-view",
+    id: MISSING_VIEW_ID,
+    name: "Minhas faltantes",
+  });
+
   stickerToSection = new Map();
   for (const section of sections.values()) {
     if (!section.stickers) continue;
@@ -192,6 +199,29 @@ function getDuplicatesBySection() {
     }
   }
   return groups;
+}
+
+function getMissingBySection() {
+  const groups = [];
+  for (const section of sectionsIndex.values()) {
+    if (!section.stickers) continue;
+    const missing = section.stickers.filter((s) => getStatus(s.id) === "missing");
+    if (missing.length > 0) {
+      groups.push({ section, missing });
+    }
+  }
+  return groups;
+}
+
+function countMissing() {
+  let count = 0;
+  for (const section of sectionsIndex.values()) {
+    if (!section.stickers) continue;
+    for (const sticker of section.stickers) {
+      if (getStatus(sticker.id) === "missing") count++;
+    }
+  }
+  return count;
 }
 
 function computeOverviewStats() {
@@ -270,8 +300,8 @@ function showActionFeedback(message, kind = "info") {
 
 function navItemHtml(sectionId) {
   const section = sectionsIndex.get(sectionId);
-  if (section.kind === "duplicates-view") {
-    const count = countDuplicates();
+  if (section.kind === "duplicates-view" || section.kind === "missing-view") {
+    const count = section.kind === "duplicates-view" ? countDuplicates() : countMissing();
     return `
       <li>
         <button class="nav-item" type="button" data-section-id="${sectionId}">
@@ -309,7 +339,8 @@ function navGroupHtml(title, items, modifier = "") {
 function renderNav(album) {
   const nav = document.getElementById("groups-nav");
 
-  const viewsHtml = navGroupHtml("Visões", navItemHtml(DUPLICATES_VIEW_ID), "nav-group--views");
+  const viewsItems = navItemHtml(DUPLICATES_VIEW_ID) + navItemHtml(MISSING_VIEW_ID);
+  const viewsHtml = navGroupHtml("Visões", viewsItems, "nav-group--views");
 
   const groupsHtml = album.groups.map((group) => {
     const items = group.selections
@@ -333,6 +364,10 @@ function updateNavProgressFor(sectionId) {
   if (!span) return;
   if (section.kind === "duplicates-view") {
     span.textContent = countDuplicates();
+    return;
+  }
+  if (section.kind === "missing-view") {
+    span.textContent = countMissing();
     return;
   }
   const stats = computeSectionStats(section);
@@ -375,37 +410,43 @@ function sectionMetaText(section) {
   return parts.join(" · ");
 }
 
+function copyButtonHtml(target) {
+  return `<button type="button" class="action action--small" data-copy="${target}">Copiar lista</button>`;
+}
+
+function metaRowHtml(metaContent, copyTarget) {
+  const copy = copyTarget ? copyButtonHtml(copyTarget) : "";
+  return `
+    <div class="content__meta-row">
+      <p class="content__meta" id="content-meta">${metaContent}</p>
+      ${copy}
+    </div>
+  `;
+}
+
 function renderStickers(section) {
   const container = document.getElementById("stickers-container");
   const visible = filterStickers(section.stickers);
   const body = visible.length === 0
     ? `<p class="content__placeholder">Nenhuma figurinha corresponde ao filtro atual.</p>`
     : `<ul class="sticker-grid">${visible.map(stickerCardHtml).join("")}</ul>`;
-  container.innerHTML = `
-    <p class="content__meta" id="content-meta">${sectionMetaText(section)}</p>
-    ${body}
-  `;
+  const copyTarget = currentFilter !== "all" && visible.length > 0 ? "filtered-section" : null;
+  container.innerHTML = metaRowHtml(sectionMetaText(section), copyTarget) + body;
 }
 
-function renderDuplicatesList() {
+function renderGroupedList({ groups, total, emptyMessage, singularNoun, pluralNoun, copyTarget }) {
   const container = document.getElementById("stickers-container");
-  const groups = getDuplicatesBySection();
-  const total = countDuplicates();
 
   if (groups.length === 0) {
-    container.innerHTML = `
-      <p class="content__placeholder">
-        Sem figurinhas repetidas no momento. Clique duas vezes em qualquer figurinha para marcá-la como repetida.
-      </p>
-    `;
+    container.innerHTML = `<p class="content__placeholder">${emptyMessage}</p>`;
     return;
   }
 
   const sectionsCount = groups.length;
-  const dupWord = total === 1 ? "figurinha repetida" : "figurinhas repetidas";
+  const noun = total === 1 ? singularNoun : pluralNoun;
   const secWord = sectionsCount === 1 ? "seleção" : "seções";
 
-  const groupsHtml = groups.map(({ section, duplicates }) => {
+  const groupsHtml = groups.map(({ section, stickers }) => {
     const headerText = section.kind === "selection"
       ? `${section.name} — ${section.groupName}`
       : section.name;
@@ -413,17 +454,38 @@ function renderDuplicatesList() {
       <section class="duplicates-group">
         <h3 class="duplicates-group__title">
           ${headerText}
-          <span class="duplicates-group__count">(${duplicates.length})</span>
+          <span class="duplicates-group__count">(${stickers.length})</span>
         </h3>
-        <ul class="sticker-grid duplicates-group__list">${duplicates.map(stickerCardHtml).join("")}</ul>
+        <ul class="sticker-grid duplicates-group__list">${stickers.map(stickerCardHtml).join("")}</ul>
       </section>
     `;
   }).join("");
 
-  container.innerHTML = `
-    <p class="content__meta">${total} ${dupWord} em ${sectionsCount} ${secWord}</p>
-    ${groupsHtml}
-  `;
+  container.innerHTML = metaRowHtml(`${total} ${noun} em ${sectionsCount} ${secWord}`, copyTarget) + groupsHtml;
+}
+
+function renderDuplicatesList() {
+  const groups = getDuplicatesBySection().map(({ section, duplicates }) => ({ section, stickers: duplicates }));
+  renderGroupedList({
+    groups,
+    total: countDuplicates(),
+    emptyMessage: "Sem figurinhas repetidas no momento. Clique duas vezes em qualquer figurinha para marcá-la como repetida.",
+    singularNoun: "figurinha repetida",
+    pluralNoun: "figurinhas repetidas",
+    copyTarget: "duplicates",
+  });
+}
+
+function renderMissingList() {
+  const groups = getMissingBySection().map(({ section, missing }) => ({ section, stickers: missing }));
+  renderGroupedList({
+    groups,
+    total: countMissing(),
+    emptyMessage: "Sem figurinhas faltantes — você completou o álbum!",
+    singularNoun: "figurinha faltante",
+    pluralNoun: "figurinhas faltantes",
+    copyTarget: "missing",
+  });
 }
 
 function updateContentMeta() {
@@ -440,6 +502,7 @@ function renderFilters() {
     container.hidden = true;
     return;
   }
+  // Filter chips only apply to per-section views, not virtual lists.
   container.hidden = false;
   for (const button of container.querySelectorAll(".filter")) {
     const isActive = button.dataset.filter === currentFilter;
@@ -458,6 +521,12 @@ function renderContent(section) {
     title.textContent = section.name;
     renderFilters();
     renderDuplicatesList();
+    return;
+  }
+  if (section.kind === "missing-view") {
+    title.textContent = section.name;
+    renderFilters();
+    renderMissingList();
     return;
   }
   title.textContent = section.kind === "selection"
@@ -503,6 +572,8 @@ function handleStickerClick(card) {
 
   if (activeSectionId === DUPLICATES_VIEW_ID) {
     renderDuplicatesList();
+  } else if (activeSectionId === MISSING_VIEW_ID) {
+    renderMissingList();
   } else if (currentFilter !== "all") {
     const section = sectionsIndex.get(activeSectionId);
     if (section) renderStickers(section);
@@ -514,6 +585,7 @@ function handleStickerClick(card) {
 
   if (originatingSectionId) updateNavProgressFor(originatingSectionId);
   updateNavProgressFor(DUPLICATES_VIEW_ID);
+  updateNavProgressFor(MISSING_VIEW_ID);
   renderOverview();
 }
 
@@ -590,6 +662,76 @@ function handleImportFile(event) {
   event.target.value = "";
 }
 
+async function copyToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.opacity = "0";
+  document.body.appendChild(area);
+  area.select();
+  try {
+    if (!document.execCommand("copy")) throw new Error("Comando de cópia recusado");
+  } finally {
+    document.body.removeChild(area);
+  }
+}
+
+async function copyAndAnnounce(text, count) {
+  if (count === 0) {
+    showActionFeedback("Nenhuma figurinha para copiar.", "error");
+    return;
+  }
+  try {
+    await copyToClipboard(text);
+    showActionFeedback(
+      `Lista copiada (${count} código${count === 1 ? "" : "s"}).`,
+      "success",
+    );
+  } catch (error) {
+    console.warn("Clipboard error:", error);
+    showActionFeedback("Falha ao copiar para a área de transferência.", "error");
+  }
+}
+
+function buildGroupedText(groups) {
+  return groups.map(({ section, stickers }) => {
+    const header = section.kind === "selection"
+      ? `${section.name} (${section.groupName})`
+      : section.name;
+    return `${header}: ${stickers.map((s) => s.id).join(", ")}`;
+  }).join("\n");
+}
+
+function handleCopyClick(button) {
+  const target = button.dataset.copy;
+
+  if (target === "filtered-section") {
+    const section = sectionsIndex.get(activeSectionId);
+    if (!section?.stickers) return;
+    const visible = filterStickers(section.stickers);
+    copyAndAnnounce(visible.map((s) => s.id).join(", "), visible.length);
+    return;
+  }
+
+  if (target === "duplicates") {
+    const groups = getDuplicatesBySection().map(({ section, duplicates }) => ({ section, stickers: duplicates }));
+    const total = groups.reduce((sum, g) => sum + g.stickers.length, 0);
+    copyAndAnnounce(buildGroupedText(groups), total);
+    return;
+  }
+
+  if (target === "missing") {
+    const groups = getMissingBySection().map(({ section, missing }) => ({ section, stickers: missing }));
+    const total = groups.reduce((sum, g) => sum + g.stickers.length, 0);
+    copyAndAnnounce(buildGroupedText(groups), total);
+    return;
+  }
+}
+
 function attachHandlers() {
   document.getElementById("groups-nav").addEventListener("click", (event) => {
     const button = event.target.closest(".nav-item");
@@ -598,6 +740,11 @@ function attachHandlers() {
   });
 
   document.getElementById("stickers-container").addEventListener("click", (event) => {
+    const copyBtn = event.target.closest("[data-copy]");
+    if (copyBtn) {
+      handleCopyClick(copyBtn);
+      return;
+    }
     const card = event.target.closest(".sticker");
     if (!card) return;
     handleStickerClick(card);
