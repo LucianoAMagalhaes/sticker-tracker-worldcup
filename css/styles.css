@@ -1,0 +1,66 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #f5f5f5;
+}
+
+.site-header,
+.site-main,
+.site-footer {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem;
+}
+
+.site-header {
+  text-align: center;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.site-tagline {
+  margin: 0.25rem 0 0;
+  color: #555;
+}
+
+.overview {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+.overview__status {
+  margin: 0;
+}
+
+.groups-nav:empty,
+.stickers:empty {
+  display: none;
+}
+
+.site-footer {
+  text-align: center;
+  color: #777;
+  font-size: 0.875rem;
+  padding-top: 2rem;
+}
