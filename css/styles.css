@@ -156,20 +156,21 @@ body {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0.4rem;
 }
 
 .sticker {
   aspect-ratio: 3 / 4;
-  border-radius: 6px;
+  border-radius: 5px;
   border: 1px dashed #cfcfcf;
   background: #fafafa;
-  padding: 0.5rem 0.4rem;
+  padding: 0.3rem 0.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 0.2rem;
   text-align: center;
   color: #8a8a8a;
   user-select: none;
@@ -177,15 +178,27 @@ body {
 
 .sticker__code {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.8rem;
   letter-spacing: 0.02em;
 }
 
 .sticker__type {
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: #a5a5a5;
+}
+
+@media (max-width: 900px) {
+  .sticker-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .sticker-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .sticker--team {
