@@ -15,7 +15,15 @@
 
   <main class="site-main">
     <section id="progress-overview" class="overview" aria-label="Progresso geral">
-      <p class="overview__status">Carregando álbum...</p>
+      <div id="overview-display" class="overview__display">
+        <p class="overview__status">Carregando álbum...</p>
+      </div>
+      <div class="overview__actions">
+        <button type="button" id="export-btn" class="action">Exportar coleção</button>
+        <button type="button" id="import-btn" class="action">Importar coleção</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+        <p id="action-feedback" class="overview__feedback" role="status" hidden></p>
+      </div>
     </section>
 
     <nav id="groups-nav" class="groups-nav" aria-label="Navegação por grupo">

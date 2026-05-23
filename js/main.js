@@ -21,6 +21,8 @@ const STATUS_LABELS = {
 let activeSectionId = null;
 let sectionsIndex = null;
 let collection = {};
+let album = null;
+let feedbackTimer = null;
 
 async function loadAlbum() {
   const response = await fetch(ALBUM_DATA_URL);
@@ -157,9 +159,9 @@ function computeSectionStats(section) {
 }
 
 function renderOverview() {
-  const overview = document.getElementById("progress-overview");
+  const display = document.getElementById("overview-display");
   const stats = computeOverviewStats();
-  overview.innerHTML = `
+  display.innerHTML = `
     <p class="overview__status">
       <strong>${stats.have}</strong> de <strong>${stats.total}</strong> figurinhas (${stats.pct}%)
     </p>
@@ -174,8 +176,21 @@ function renderOverview() {
 }
 
 function renderError(error) {
-  const overview = document.getElementById("progress-overview");
-  overview.innerHTML = `<p class="overview__status">Erro ao carregar álbum: ${error.message}</p>`;
+  const display = document.getElementById("overview-display");
+  display.innerHTML = `<p class="overview__status">Erro ao carregar álbum: ${error.message}</p>`;
+}
+
+function showActionFeedback(message, kind = "info") {
+  const el = document.getElementById("action-feedback");
+  if (!el) return;
+  el.textContent = message;
+  el.dataset.kind = kind;
+  el.hidden = false;
+  if (feedbackTimer) clearTimeout(feedbackTimer);
+  feedbackTimer = setTimeout(() => {
+    el.hidden = true;
+    feedbackTimer = null;
+  }, 4000);
 }
 
 function navItemHtml(sectionId) {
@@ -287,12 +302,7 @@ function renderContent(section) {
   renderStickers(section);
 }
 
-function setActiveSection(sectionId) {
-  const section = sectionsIndex.get(sectionId);
-  if (!section) return;
-
-  activeSectionId = sectionId;
-
+function applyActiveSectionState(sectionId) {
   for (const button of document.querySelectorAll(".nav-item")) {
     const isActive = button.dataset.sectionId === sectionId;
     button.classList.toggle("nav-item--active", isActive);
@@ -302,8 +312,22 @@ function setActiveSection(sectionId) {
       button.removeAttribute("aria-current");
     }
   }
+}
 
+function setActiveSection(sectionId) {
+  const section = sectionsIndex.get(sectionId);
+  if (!section) return;
+  activeSectionId = sectionId;
+  applyActiveSectionState(sectionId);
   renderContent(section);
+}
+
+function refreshAll() {
+  renderOverview();
+  renderNav(album);
+  applyActiveSectionState(activeSectionId);
+  const section = sectionsIndex.get(activeSectionId);
+  if (section) renderContent(section);
 }
 
 function handleStickerClick(card) {
@@ -315,6 +339,79 @@ function handleStickerClick(card) {
   updateContentMeta();
   updateActiveNavProgress();
   renderOverview();
+}
+
+function isValidCollection(value) {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+  for (const status of Object.values(value)) {
+    if (status !== "owned" && status !== "duplicate") return false;
+  }
+  return true;
+}
+
+function exportCollection() {
+  const payload = JSON.stringify(collection, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const date = new Date().toISOString().slice(0, 10);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `colecao-copa-2022-${date}.json`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+
+  const count = Object.keys(collection).length;
+  showActionFeedback(
+    `Coleção exportada (${count} ${count === 1 ? "entrada" : "entradas"}).`,
+    "success",
+  );
+}
+
+function importFromText(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (error) {
+    showActionFeedback(`Arquivo inválido: ${error.message}`, "error");
+    return;
+  }
+  if (!isValidCollection(parsed)) {
+    showActionFeedback(
+      "Arquivo inválido: estrutura esperada é um objeto { stickerId: 'owned' | 'duplicate' }.",
+      "error",
+    );
+    return;
+  }
+  const incoming = Object.keys(parsed).length;
+  const current = Object.keys(collection).length;
+  const message = current === 0
+    ? `Importar ${incoming} ${incoming === 1 ? "entrada" : "entradas"}?`
+    : `Substituir sua coleção atual (${current}) por ${incoming} ${incoming === 1 ? "entrada" : "entradas"}? Esta ação não pode ser desfeita.`;
+  if (!confirm(message)) {
+    showActionFeedback("Importação cancelada.", "info");
+    return;
+  }
+  collection = parsed;
+  saveCollection();
+  refreshAll();
+  showActionFeedback(
+    `Coleção importada (${incoming} ${incoming === 1 ? "entrada" : "entradas"}).`,
+    "success",
+  );
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => importFromText(String(reader.result ?? ""));
+  reader.onerror = () => showActionFeedback("Falha ao ler o arquivo.", "error");
+  reader.readAsText(file);
+  event.target.value = "";
 }
 
 function attachHandlers() {
@@ -329,11 +426,18 @@ function attachHandlers() {
     if (!card) return;
     handleStickerClick(card);
   });
+
+  document.getElementById("export-btn").addEventListener("click", exportCollection);
+
+  const importBtn = document.getElementById("import-btn");
+  const importFile = document.getElementById("import-file");
+  importBtn.addEventListener("click", () => importFile.click());
+  importFile.addEventListener("change", handleImportFile);
 }
 
 async function main() {
   try {
-    const album = await loadAlbum();
+    album = await loadAlbum();
     sectionsIndex = buildSectionsIndex(album);
     collection = loadCollection();
 

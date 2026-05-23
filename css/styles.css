@@ -73,6 +73,53 @@ body {
   color: #6b6b6b;
 }
 
+.overview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee;
+}
+
+.action {
+  background: #fff;
+  border: 1px solid #cfd6e0;
+  color: #1f2d3d;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.action:hover {
+  background: #f5f8fc;
+  border-color: #a9b6c8;
+}
+
+.action:focus-visible {
+  outline: 2px solid #2a6df4;
+  outline-offset: 1px;
+}
+
+.overview__feedback {
+  margin: 0;
+  margin-left: auto;
+  font-size: 0.875rem;
+  color: #6b6b6b;
+}
+
+.overview__feedback[data-kind="success"] {
+  color: #2e7d32;
+}
+
+.overview__feedback[data-kind="error"] {
+  color: #c62828;
+}
+
 .site-main {
   display: grid;
   grid-template-columns: 240px 1fr;
