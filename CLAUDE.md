@@ -68,7 +68,9 @@ Projeto recém-iniciado. Diretório vazio — apenas este `CLAUDE.md`.
    - Bloco Gerais (`FWC1`–`FWC29`)
    - Bloco Coca-Cola (`C1`–`C8`)
    - Figurinha especial (`00`)
-   - Cada figurinha tem: id (ex: `BRA1`, `FWC5`, `C3`, `00`), tipo (`time` | `escudo` | `jogador` | `geral` | `coca` | `especial`), status (`tenho` | `falta` | `repetida`).
+   - Identificadores em inglês (conforme convenção):
+     - **type**: `team` | `shield` | `player` | `general` | `coca` | `special`
+     - **status** (gerenciado no `localStorage`, não no catálogo): `owned` | `missing` | `duplicate`
 2. **Estrutura HTML base** — `index.html` com layout (navegação por grupo/seleção + seções extras para Gerais, Coca-Cola e Especial).
 3. **Estilização CSS** — visual limpo, responsivo, com indicadores visuais claros para os 3 estados das figurinhas.
 4. **Lógica JavaScript**:
