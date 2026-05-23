@@ -1,7 +1,10 @@
-const ALBUM_DATA_URL = "data/album.json";
+const ALBUMS_MANIFEST_URL = "data/albums.json";
+const STORAGE_NAMESPACE = "sticker-tracker";
+const ACTIVE_ALBUM_KEY = `${STORAGE_NAMESPACE}:active-album`;
+const LEGACY_COLLECTION_KEY = "sticker-tracker-wordcup2022:collection";
+const LEGACY_FILTER_KEY = "sticker-tracker-wordcup2022:filter";
+const LEGACY_ALBUM_ID = "2022";
 const SPECIAL_PREFIX = "special:";
-const STORAGE_KEY = "sticker-tracker-wordcup2022:collection";
-const FILTER_STORAGE_KEY = "sticker-tracker-wordcup2022:filter";
 const STATUS_CYCLE = ["missing", "owned", "duplicate"];
 const DUPLICATES_VIEW_ID = "view:duplicates";
 const MISSING_VIEW_ID = "view:missing";
@@ -29,6 +32,8 @@ const STATUS_LABELS = {
   duplicate: "repetida",
 };
 
+let albumsManifest = null;
+let activeAlbumId = null;
 let activeSectionId = null;
 let sectionsIndex = null;
 let stickerToSection = new Map();
@@ -37,17 +42,68 @@ let album = null;
 let feedbackTimer = null;
 let currentFilter = "all";
 
-async function loadAlbum() {
-  const response = await fetch(ALBUM_DATA_URL);
+function collectionStorageKey(albumId) {
+  return `${STORAGE_NAMESPACE}:${albumId}:collection`;
+}
+
+function filterStorageKey(albumId) {
+  return `${STORAGE_NAMESPACE}:${albumId}:filter`;
+}
+
+async function loadAlbumsManifest() {
+  const response = await fetch(ALBUMS_MANIFEST_URL);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status} while loading ${ALBUM_DATA_URL}`);
+    throw new Error(`HTTP ${response.status} while loading ${ALBUMS_MANIFEST_URL}`);
   }
   return response.json();
 }
 
+async function loadAlbumById(albumId) {
+  const entry = albumsManifest.albums.find((a) => a.id === albumId);
+  if (!entry) throw new Error(`Unknown album id: ${albumId}`);
+  const response = await fetch(entry.file);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} while loading ${entry.file}`);
+  }
+  return response.json();
+}
+
+// Move data from the pre-multi-album storage keys into the 2022 namespace.
+// Runs once: if the new keys already exist, the old ones are left alone.
+function migrateLegacyKeysIfNeeded() {
+  const newCollectionKey = collectionStorageKey(LEGACY_ALBUM_ID);
+  const legacyCollection = localStorage.getItem(LEGACY_COLLECTION_KEY);
+  if (legacyCollection !== null && localStorage.getItem(newCollectionKey) === null) {
+    localStorage.setItem(newCollectionKey, legacyCollection);
+    localStorage.removeItem(LEGACY_COLLECTION_KEY);
+  }
+  const newFilterKey = filterStorageKey(LEGACY_ALBUM_ID);
+  const legacyFilter = localStorage.getItem(LEGACY_FILTER_KEY);
+  if (legacyFilter !== null && localStorage.getItem(newFilterKey) === null) {
+    localStorage.setItem(newFilterKey, legacyFilter);
+    localStorage.removeItem(LEGACY_FILTER_KEY);
+  }
+}
+
+function resolveActiveAlbumId() {
+  const stored = localStorage.getItem(ACTIVE_ALBUM_KEY);
+  if (stored && albumsManifest.albums.some((a) => a.id === stored)) {
+    return stored;
+  }
+  return albumsManifest.defaultAlbumId ?? albumsManifest.albums[0].id;
+}
+
+function saveActiveAlbumId() {
+  try {
+    localStorage.setItem(ACTIVE_ALBUM_KEY, activeAlbumId);
+  } catch (error) {
+    console.warn("Failed to save active album:", error);
+  }
+}
+
 function loadCollection() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(collectionStorageKey(activeAlbumId));
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     return typeof parsed === "object" && parsed !== null ? parsed : {};
@@ -59,20 +115,20 @@ function loadCollection() {
 
 function saveCollection() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collection));
+    localStorage.setItem(collectionStorageKey(activeAlbumId), JSON.stringify(collection));
   } catch (error) {
     console.warn("Failed to save collection to storage:", error);
   }
 }
 
 function loadFilter() {
-  const stored = localStorage.getItem(FILTER_STORAGE_KEY);
+  const stored = localStorage.getItem(filterStorageKey(activeAlbumId));
   return FILTERS.includes(stored) ? stored : "all";
 }
 
 function saveFilter() {
   try {
-    localStorage.setItem(FILTER_STORAGE_KEY, currentFilter);
+    localStorage.setItem(filterStorageKey(activeAlbumId), currentFilter);
   } catch (error) {
     console.warn("Failed to save filter to storage:", error);
   }
@@ -606,7 +662,7 @@ function exportCollection() {
   const date = new Date().toISOString().slice(0, 10);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `colecao-copa-2022-${date}.json`;
+  anchor.download = `colecao-copa-${activeAlbumId}-${date}.json`;
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
@@ -732,6 +788,44 @@ function handleCopyClick(button) {
   }
 }
 
+function renderAlbumSelector() {
+  const select = document.getElementById("album-selector");
+  if (!select) return;
+  select.innerHTML = albumsManifest.albums
+    .map((a) => {
+      const label = a.shortName || a.name;
+      const selected = a.id === activeAlbumId ? " selected" : "";
+      return `<option value="${a.id}"${selected}>${label}</option>`;
+    })
+    .join("");
+  select.disabled = albumsManifest.albums.length < 2;
+}
+
+function updateDocumentTitle() {
+  const label = album.shortName || album.name;
+  document.title = `${label} — Sticker Tracker`;
+}
+
+async function switchAlbum(newAlbumId) {
+  if (newAlbumId === activeAlbumId) return;
+  try {
+    album = await loadAlbumById(newAlbumId);
+    activeAlbumId = newAlbumId;
+    saveActiveAlbumId();
+    sectionsIndex = buildSectionsIndex(album);
+    collection = loadCollection();
+    currentFilter = loadFilter();
+    updateDocumentTitle();
+    renderOverview();
+    renderNav(album);
+    const firstSelectionId = album.groups[0].selections[0].code;
+    setActiveSection(firstSelectionId);
+  } catch (error) {
+    renderError(error);
+    console.error(error);
+  }
+}
+
 function attachHandlers() {
   document.getElementById("groups-nav").addEventListener("click", (event) => {
     const button = event.target.closest(".nav-item");
@@ -773,15 +867,29 @@ function attachHandlers() {
   const importFile = document.getElementById("import-file");
   importBtn.addEventListener("click", () => importFile.click());
   importFile.addEventListener("change", handleImportFile);
+
+  const albumSelector = document.getElementById("album-selector");
+  if (albumSelector) {
+    albumSelector.addEventListener("change", (event) => {
+      switchAlbum(event.target.value);
+    });
+  }
 }
 
 async function main() {
   try {
-    album = await loadAlbum();
+    albumsManifest = await loadAlbumsManifest();
+    migrateLegacyKeysIfNeeded();
+    activeAlbumId = resolveActiveAlbumId();
+    saveActiveAlbumId();
+    album = await loadAlbumById(activeAlbumId);
+
     sectionsIndex = buildSectionsIndex(album);
     collection = loadCollection();
     currentFilter = loadFilter();
 
+    updateDocumentTitle();
+    renderAlbumSelector();
     renderOverview();
     renderNav(album);
     attachHandlers();

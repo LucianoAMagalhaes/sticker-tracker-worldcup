@@ -5,14 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Acompanhe sua coleção de figurinhas do álbum Panini da Copa do Mundo 2022.">
   <meta name="theme-color" content="#8d1538">
-  <title>Álbum Copa 2022 — Sticker Tracker</title>
+  <title>Sticker Tracker — Álbuns da Copa do Mundo</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23fff' stroke='%238d1538' stroke-width='2.5'/><polygon points='16,8 22,12.5 19.7,19.5 12.3,19.5 10,12.5' fill='%238d1538'/></svg>">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header class="site-header">
-    <h1>Álbum Copa do Mundo 2022</h1>
-    <p class="site-tagline">Acompanhe sua coleção de figurinhas</p>
+    <div class="site-header__intro">
+      <h1>Álbum da Copa do Mundo</h1>
+      <p class="site-tagline">Acompanhe sua coleção de figurinhas</p>
+    </div>
+    <label class="album-picker">
+      <span class="album-picker__label">Álbum</span>
+      <select id="album-selector" class="album-picker__select" aria-label="Selecionar álbum"></select>
+    </label>
   </header>
 
   <main class="site-main">
