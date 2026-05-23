@@ -129,6 +129,54 @@ sticker-tracker-wordcup2022/
 - Responsivo (10 / 5 / 4 colunas conforme viewport)
 - A11y básica (aria-labels, aria-current, aria-pressed, focus rings, prefers-reduced-motion)
 
+## Evolução para Multi-Álbum (planejado)
+
+A próxima grande evolução é transformar o app de "tracker da Copa 2022" para um **tracker de álbuns Panini da Copa do Mundo**, começando pelo 2026 como segundo álbum suportado.
+
+### Renomeação do repositório
+
+- **De**: `sticker-tracker-wordcup2022`
+- **Para**: `sticker-tracker-worldcup`
+- GitHub mantém redirect automático do nome antigo; a URL do Pages passa a ser `https://lucianoamagalhaes.github.io/sticker-tracker-worldcup/` (também com redirect do nome antigo).
+- O título visível do app deixa de mencionar "2022" e passa a refletir o álbum ativo.
+
+### Pesquisa do álbum Copa 2026
+
+Levantamento feito em maio/2026 a partir de fontes Panini, FIFA, imprensa esportiva (SI, ESPN, CNN Brasil, Investnews) e checklists de colecionadores:
+
+- **Total: 980 figurinhas** em 112 páginas (maior álbum da história da Copa)
+- **48 seleções × 20 figurinhas** = 960 (mesmo layout do 2022: 1 foto do time + 1 escudo + 18 jogadores)
+- **20 especiais**: ~9 "Introduction" + ~11 "FIFA Museum" (legends/campeões anteriores)
+- **12 figurinhas Coca-Cola** promocionais (em rótulos da Coca, fora dos envelopes)
+- **12 grupos (A–L)** definidos no sorteio de 5 dez 2025 em Washington
+- Estreantes na Copa: Cabo Verde (CPV), Curaçao (CUW), Jordânia (JOR), Uzbequistão (UZB)
+- Ausência notável: Itália (eliminada na repescagem europeia pela Bósnia)
+
+**Nota sobre as "68 metalizadas"**: a imprensa brasileira fala em 68 figurinhas metalizadas (48 escudos + 16 estádios + 4 institucionais), mas isso conta os 48 escudos que **já estão dentro das páginas das seleções** (versão FOIL do slot do escudo). Não são um bloco extra — não afeta a contagem do catálogo (48×20 + 20 especiais = 980).
+
+### Plano de implementação (3 PRs)
+
+1. **`refactor/multi-album` — Refactor multi-álbum (sem dados novos ainda)**
+   - `data/album.json` → `data/album-2022.json` (mesmo conteúdo + metadados `id`/`name`/`year`)
+   - Novo `data/albums.json` (manifest com a lista de álbuns disponíveis)
+   - JS carrega o manifest e expõe seletor de álbum na UI; trocar o álbum recarrega o catálogo
+   - `localStorage` namespaceado por álbum: `sticker-tracker:<album-id>:collection`, `sticker-tracker:<album-id>:filter`, + `sticker-tracker:active-album`
+   - Migration: ler as chaves antigas (`sticker-tracker-wordcup2022:*`) no primeiro load e mover para o namespace do `2022`
+   - Renomear repo + atualizar URL no README
+
+2. **`feat/album-2026` — Catálogo da Copa 2026**
+   - `data/album-2026.json` com os 12 grupos do sorteio oficial + 48 seleções + blocos especiais (Intro, Museum, Coca)
+   - Adicionar entrada no manifest e tornar o 2026 o álbum default no primeiro acesso
+
+3. **`docs/multi-album` — Atualização final da documentação**
+   - Atualizar README com o novo escopo, URL do Pages, prints do seletor
+   - Refrescar este CLAUDE.md (mover "Multi-Álbum" do "planejado" para arquitetura corrente, atualizar diagrama de arquivos)
+
+### Decisões pendentes
+
+- **UI do seletor de álbum**: dropdown no header, tabs no topo ou seletor na sidebar?
+- **Nível de completude do 2026 no PR 2**: estrutura completa com os 12 grupos do sorteio, lista plana sem grupo, ou placeholder?
+
 ## Ideias futuras
 
 - Per-grupo de copa: mostrar progresso agregado do grupo no header da sidebar
