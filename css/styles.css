@@ -118,7 +118,10 @@ body {
 }
 
 .nav-item {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
   width: 100%;
   text-align: left;
   background: none;
@@ -142,6 +145,24 @@ body {
 .nav-item--active {
   background: #e7f0ff;
   color: #1f4ec2;
+  font-weight: 600;
+}
+
+.nav-item__name {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-item__progress {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #9b9b9b;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.nav-item__progress--complete {
+  color: #2e7d32;
   font-weight: 600;
 }
 

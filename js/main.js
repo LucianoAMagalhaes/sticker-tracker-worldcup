@@ -178,8 +178,21 @@ function renderError(error) {
   overview.innerHTML = `<p class="overview__status">Erro ao carregar álbum: ${error.message}</p>`;
 }
 
-function navItemHtml(id, name) {
-  return `<li><button class="nav-item" type="button" data-section-id="${id}">${name}</button></li>`;
+function navItemHtml(sectionId) {
+  const section = sectionsIndex.get(sectionId);
+  const stats = computeSectionStats(section);
+  const isComplete = stats.have === stats.total;
+  const progressClass = isComplete
+    ? "nav-item__progress nav-item__progress--complete"
+    : "nav-item__progress";
+  return `
+    <li>
+      <button class="nav-item" type="button" data-section-id="${sectionId}">
+        <span class="nav-item__name">${section.name}</span>
+        <span class="${progressClass}" data-progress-for="${sectionId}">${stats.have}/${stats.total}</span>
+      </button>
+    </li>
+  `;
 }
 
 function navGroupHtml(title, items, modifier = "") {
@@ -197,17 +210,27 @@ function renderNav(album) {
 
   const groupsHtml = album.groups.map((group) => {
     const items = group.selections
-      .map((selection) => navItemHtml(selection.code, selection.name))
+      .map((selection) => navItemHtml(selection.code))
       .join("");
     return navGroupHtml(group.name, items);
   }).join("");
 
   const specialsItems = album.specials
-    .map((special) => navItemHtml(`${SPECIAL_PREFIX}${special.id}`, special.name))
+    .map((special) => navItemHtml(`${SPECIAL_PREFIX}${special.id}`))
     .join("");
   const specialsHtml = navGroupHtml("Especiais", specialsItems, "nav-group--specials");
 
   nav.innerHTML = groupsHtml + specialsHtml;
+}
+
+function updateActiveNavProgress() {
+  const section = sectionsIndex.get(activeSectionId);
+  if (!section) return;
+  const span = document.querySelector(`[data-progress-for="${activeSectionId}"]`);
+  if (!span) return;
+  const stats = computeSectionStats(section);
+  span.textContent = `${stats.have}/${stats.total}`;
+  span.classList.toggle("nav-item__progress--complete", stats.have === stats.total);
 }
 
 function stickerAriaLabel(sticker, status) {
@@ -290,6 +313,7 @@ function handleStickerClick(card) {
   card.dataset.status = newStatus;
   card.setAttribute("aria-label", stickerAriaLabel({ id: stickerId, type }, newStatus));
   updateContentMeta();
+  updateActiveNavProgress();
   renderOverview();
 }
 
