@@ -1,0 +1,12 @@
+{
+  "defaultAlbumId": "2022",
+  "albums": [
+    {
+      "id": "2022",
+      "name": "Copa do Mundo 2022",
+      "shortName": "Copa 2022",
+      "year": 2022,
+      "file": "data/album-2022.json"
+    }
+  ]
+}

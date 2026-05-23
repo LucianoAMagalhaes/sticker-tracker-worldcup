@@ -1,4 +1,8 @@
 {
+  "id": "2022",
+  "name": "Copa do Mundo 2022",
+  "shortName": "Copa 2022",
+  "year": 2022,
   "totalStickers": 678,
   "selectionStickerLayout": [
     { "number": 1, "type": "team" },
