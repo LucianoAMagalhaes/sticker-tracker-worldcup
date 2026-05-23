@@ -1,8 +1,17 @@
 const ALBUM_DATA_URL = "data/album.json";
 const SPECIAL_PREFIX = "special:";
 const STORAGE_KEY = "sticker-tracker-wordcup2022:collection";
+const FILTER_STORAGE_KEY = "sticker-tracker-wordcup2022:filter";
 const STATUS_CYCLE = ["missing", "owned", "duplicate"];
 const DUPLICATES_VIEW_ID = "view:duplicates";
+const FILTERS = ["all", "missing", "owned", "duplicate"];
+
+const FILTER_LABELS = {
+  all: "Todas",
+  missing: "faltantes",
+  owned: "obtidas",
+  duplicate: "repetidas",
+};
 
 const TYPE_LABELS = {
   team: "Time",
@@ -25,6 +34,7 @@ let stickerToSection = new Map();
 let collection = {};
 let album = null;
 let feedbackTimer = null;
+let currentFilter = "all";
 
 async function loadAlbum() {
   const response = await fetch(ALBUM_DATA_URL);
@@ -52,6 +62,30 @@ function saveCollection() {
   } catch (error) {
     console.warn("Failed to save collection to storage:", error);
   }
+}
+
+function loadFilter() {
+  const stored = localStorage.getItem(FILTER_STORAGE_KEY);
+  return FILTERS.includes(stored) ? stored : "all";
+}
+
+function saveFilter() {
+  try {
+    localStorage.setItem(FILTER_STORAGE_KEY, currentFilter);
+  } catch (error) {
+    console.warn("Failed to save filter to storage:", error);
+  }
+}
+
+function matchesFilter(status) {
+  if (currentFilter === "all") return true;
+  if (currentFilter === "owned") return status === "owned" || status === "duplicate";
+  return status === currentFilter;
+}
+
+function filterStickers(stickers) {
+  if (currentFilter === "all") return stickers;
+  return stickers.filter((s) => matchesFilter(getStatus(s.id)));
 }
 
 function getStatus(stickerId) {
@@ -334,14 +368,22 @@ function sectionMetaText(section) {
   if (stats.duplicate > 0) {
     parts.push(`${stats.duplicate} repetida${stats.duplicate === 1 ? "" : "s"}`);
   }
+  if (currentFilter !== "all") {
+    const visible = filterStickers(section.stickers).length;
+    parts.push(`mostrando ${visible} ${FILTER_LABELS[currentFilter]}`);
+  }
   return parts.join(" · ");
 }
 
 function renderStickers(section) {
   const container = document.getElementById("stickers-container");
+  const visible = filterStickers(section.stickers);
+  const body = visible.length === 0
+    ? `<p class="content__placeholder">Nenhuma figurinha corresponde ao filtro atual.</p>`
+    : `<ul class="sticker-grid">${visible.map(stickerCardHtml).join("")}</ul>`;
   container.innerHTML = `
     <p class="content__meta" id="content-meta">${sectionMetaText(section)}</p>
-    <ul class="sticker-grid">${section.stickers.map(stickerCardHtml).join("")}</ul>
+    ${body}
   `;
 }
 
@@ -391,16 +433,37 @@ function updateContentMeta() {
   if (meta) meta.textContent = sectionMetaText(section);
 }
 
+function renderFilters() {
+  const container = document.getElementById("content-filters");
+  const section = sectionsIndex.get(activeSectionId);
+  if (!section || !section.stickers) {
+    container.hidden = true;
+    return;
+  }
+  container.hidden = false;
+  for (const button of container.querySelectorAll(".filter")) {
+    const isActive = button.dataset.filter === currentFilter;
+    button.classList.toggle("filter--active", isActive);
+    if (isActive) {
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
+    }
+  }
+}
+
 function renderContent(section) {
   const title = document.getElementById("content-title");
   if (section.kind === "duplicates-view") {
     title.textContent = section.name;
+    renderFilters();
     renderDuplicatesList();
     return;
   }
   title.textContent = section.kind === "selection"
     ? `${section.name} — ${section.groupName}`
     : section.name;
+  renderFilters();
   renderStickers(section);
 }
 
@@ -440,6 +503,9 @@ function handleStickerClick(card) {
 
   if (activeSectionId === DUPLICATES_VIEW_ID) {
     renderDuplicatesList();
+  } else if (currentFilter !== "all") {
+    const section = sectionsIndex.get(activeSectionId);
+    if (section) renderStickers(section);
   } else {
     card.dataset.status = newStatus;
     card.setAttribute("aria-label", stickerAriaLabel({ id: stickerId, type }, newStatus));
@@ -543,6 +609,17 @@ function attachHandlers() {
     setActiveSection(DUPLICATES_VIEW_ID);
   });
 
+  document.getElementById("content-filters").addEventListener("click", (event) => {
+    const button = event.target.closest(".filter");
+    if (!button) return;
+    const filter = button.dataset.filter;
+    if (!FILTERS.includes(filter) || filter === currentFilter) return;
+    currentFilter = filter;
+    saveFilter();
+    const section = sectionsIndex.get(activeSectionId);
+    if (section) renderContent(section);
+  });
+
   document.getElementById("export-btn").addEventListener("click", exportCollection);
 
   const importBtn = document.getElementById("import-btn");
@@ -556,6 +633,7 @@ async function main() {
     album = await loadAlbum();
     sectionsIndex = buildSectionsIndex(album);
     collection = loadCollection();
+    currentFilter = loadFilter();
 
     renderOverview();
     renderNav(album);
