@@ -2,6 +2,7 @@ const ALBUM_DATA_URL = "data/album.json";
 const SPECIAL_PREFIX = "special:";
 const STORAGE_KEY = "sticker-tracker-wordcup2022:collection";
 const STATUS_CYCLE = ["missing", "owned", "duplicate"];
+const DUPLICATES_VIEW_ID = "view:duplicates";
 
 const TYPE_LABELS = {
   team: "Time",
@@ -20,6 +21,7 @@ const STATUS_LABELS = {
 
 let activeSectionId = null;
 let sectionsIndex = null;
+let stickerToSection = new Map();
 let collection = {};
 let album = null;
 let feedbackTimer = null;
@@ -121,7 +123,41 @@ function buildSectionsIndex(album) {
     });
   }
 
+  sections.set(DUPLICATES_VIEW_ID, {
+    kind: "duplicates-view",
+    id: DUPLICATES_VIEW_ID,
+    name: "Minhas repetidas",
+  });
+
+  stickerToSection = new Map();
+  for (const section of sections.values()) {
+    if (!section.stickers) continue;
+    for (const sticker of section.stickers) {
+      stickerToSection.set(sticker.id, section.id);
+    }
+  }
+
   return sections;
+}
+
+function countDuplicates() {
+  let count = 0;
+  for (const status of Object.values(collection)) {
+    if (status === "duplicate") count++;
+  }
+  return count;
+}
+
+function getDuplicatesBySection() {
+  const groups = [];
+  for (const section of sectionsIndex.values()) {
+    if (!section.stickers) continue;
+    const duplicates = section.stickers.filter((s) => getStatus(s.id) === "duplicate");
+    if (duplicates.length > 0) {
+      groups.push({ section, duplicates });
+    }
+  }
+  return groups;
 }
 
 function computeOverviewStats() {
@@ -161,6 +197,10 @@ function computeSectionStats(section) {
 function renderOverview() {
   const display = document.getElementById("overview-display");
   const stats = computeOverviewStats();
+  const dupWord = stats.duplicate === 1 ? "repetida" : "repetidas";
+  const dupContent = stats.duplicate > 0
+    ? `<button type="button" class="overview__link" data-action="view-duplicates">${stats.duplicate} ${dupWord} para troca</button>`
+    : `${stats.duplicate} ${dupWord} para troca`;
   display.innerHTML = `
     <p class="overview__status">
       <strong>${stats.have}</strong> de <strong>${stats.total}</strong> figurinhas (${stats.pct}%)
@@ -169,7 +209,7 @@ function renderOverview() {
       <div class="overview__fill" style="width: ${stats.pct}%"></div>
     </div>
     <p class="overview__breakdown">
-      ${stats.duplicate} repetida${stats.duplicate === 1 ? "" : "s"} para troca ·
+      ${dupContent} ·
       ${stats.missing} faltando
     </p>
   `;
@@ -195,6 +235,17 @@ function showActionFeedback(message, kind = "info") {
 
 function navItemHtml(sectionId) {
   const section = sectionsIndex.get(sectionId);
+  if (section.kind === "duplicates-view") {
+    const count = countDuplicates();
+    return `
+      <li>
+        <button class="nav-item" type="button" data-section-id="${sectionId}">
+          <span class="nav-item__name">${section.name}</span>
+          <span class="nav-item__progress" data-progress-for="${sectionId}">${count}</span>
+        </button>
+      </li>
+    `;
+  }
   const stats = computeSectionStats(section);
   const isComplete = stats.have === stats.total;
   const progressClass = isComplete
@@ -223,6 +274,8 @@ function navGroupHtml(title, items, modifier = "") {
 function renderNav(album) {
   const nav = document.getElementById("groups-nav");
 
+  const viewsHtml = navGroupHtml("Visões", navItemHtml(DUPLICATES_VIEW_ID), "nav-group--views");
+
   const groupsHtml = album.groups.map((group) => {
     const items = group.selections
       .map((selection) => navItemHtml(selection.code))
@@ -235,14 +288,18 @@ function renderNav(album) {
     .join("");
   const specialsHtml = navGroupHtml("Especiais", specialsItems, "nav-group--specials");
 
-  nav.innerHTML = groupsHtml + specialsHtml;
+  nav.innerHTML = viewsHtml + groupsHtml + specialsHtml;
 }
 
-function updateActiveNavProgress() {
-  const section = sectionsIndex.get(activeSectionId);
+function updateNavProgressFor(sectionId) {
+  const section = sectionsIndex.get(sectionId);
   if (!section) return;
-  const span = document.querySelector(`[data-progress-for="${activeSectionId}"]`);
+  const span = document.querySelector(`[data-progress-for="${sectionId}"]`);
   if (!span) return;
+  if (section.kind === "duplicates-view") {
+    span.textContent = countDuplicates();
+    return;
+  }
   const stats = computeSectionStats(section);
   span.textContent = `${stats.have}/${stats.total}`;
   span.classList.toggle("nav-item__progress--complete", stats.have === stats.total);
@@ -287,15 +344,59 @@ function renderStickers(section) {
   `;
 }
 
+function renderDuplicatesList() {
+  const container = document.getElementById("stickers-container");
+  const groups = getDuplicatesBySection();
+  const total = countDuplicates();
+
+  if (groups.length === 0) {
+    container.innerHTML = `
+      <p class="content__placeholder">
+        Sem figurinhas repetidas no momento. Clique duas vezes em qualquer figurinha para marcá-la como repetida.
+      </p>
+    `;
+    return;
+  }
+
+  const sectionsCount = groups.length;
+  const dupWord = total === 1 ? "figurinha repetida" : "figurinhas repetidas";
+  const secWord = sectionsCount === 1 ? "seleção" : "seções";
+
+  const groupsHtml = groups.map(({ section, duplicates }) => {
+    const headerText = section.kind === "selection"
+      ? `${section.name} — ${section.groupName}`
+      : section.name;
+    return `
+      <section class="duplicates-group">
+        <h3 class="duplicates-group__title">
+          ${headerText}
+          <span class="duplicates-group__count">(${duplicates.length})</span>
+        </h3>
+        <ul class="sticker-grid duplicates-group__list">${duplicates.map(stickerCardHtml).join("")}</ul>
+      </section>
+    `;
+  }).join("");
+
+  container.innerHTML = `
+    <p class="content__meta">${total} ${dupWord} em ${sectionsCount} ${secWord}</p>
+    ${groupsHtml}
+  `;
+}
+
 function updateContentMeta() {
   const section = sectionsIndex.get(activeSectionId);
-  if (!section) return;
+  if (!section || !section.stickers) return;
   const meta = document.getElementById("content-meta");
   if (meta) meta.textContent = sectionMetaText(section);
 }
 
 function renderContent(section) {
   const title = document.getElementById("content-title");
+  if (section.kind === "duplicates-view") {
+    title.textContent = section.name;
+    renderDuplicatesList();
+    return;
+  }
   title.textContent = section.kind === "selection"
     ? `${section.name} — ${section.groupName}`
     : section.name;
@@ -334,10 +435,18 @@ function handleStickerClick(card) {
   const stickerId = card.dataset.stickerId;
   const type = card.dataset.type;
   const newStatus = cycleStatus(stickerId);
-  card.dataset.status = newStatus;
-  card.setAttribute("aria-label", stickerAriaLabel({ id: stickerId, type }, newStatus));
-  updateContentMeta();
-  updateActiveNavProgress();
+  const originatingSectionId = stickerToSection.get(stickerId);
+
+  if (activeSectionId === DUPLICATES_VIEW_ID) {
+    renderDuplicatesList();
+  } else {
+    card.dataset.status = newStatus;
+    card.setAttribute("aria-label", stickerAriaLabel({ id: stickerId, type }, newStatus));
+    updateContentMeta();
+  }
+
+  if (originatingSectionId) updateNavProgressFor(originatingSectionId);
+  updateNavProgressFor(DUPLICATES_VIEW_ID);
   renderOverview();
 }
 
@@ -425,6 +534,12 @@ function attachHandlers() {
     const card = event.target.closest(".sticker");
     if (!card) return;
     handleStickerClick(card);
+  });
+
+  document.getElementById("progress-overview").addEventListener("click", (event) => {
+    const link = event.target.closest('[data-action="view-duplicates"]');
+    if (!link) return;
+    setActiveSection(DUPLICATES_VIEW_ID);
   });
 
   document.getElementById("export-btn").addEventListener("click", exportCollection);
