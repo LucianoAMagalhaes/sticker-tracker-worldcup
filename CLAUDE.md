@@ -157,7 +157,7 @@ sticker-tracker-worldcup/
 - **`collection`** — objeto em memória sincronizado com `localStorage` (chave do álbum ativo).
 - **`currentFilter`** — filtro de status ativo, persistido em `localStorage` (chave do álbum ativo).
 - **`switchAlbum(newId)`** — recarrega catálogo, rebuilda `sectionsIndex`, troca `collection`/`currentFilter` para os do novo álbum, re-renderiza tudo.
-- **`applyAlbumTheme()`** — escreve `data-album="<id>"` no `<body>`. CSS reage com overrides de tokens (ex: `body[data-album="2026"] { --primary: ...; }`) sob o `:root` base e dentro do `@media (prefers-color-scheme: dark)`. Hoje 2022 usa os tokens default; 2026 tem paleta própria (azul elétrico + magenta + verde-água, refletindo a identidade FIFA 26).
+- **`applyAlbumTheme()`** — escreve `data-album="<id>"` no `<body>`. CSS reage com overrides de tokens (ex: `body[data-album="2026"] { --primary: ...; }`) sob o `:root` base e dentro do `@media (prefers-color-scheme: dark)`. Hoje 2022 usa os tokens default (vinho + areia); 2026 tem paleta própria inspirada na capa do álbum Panini WC26 (vermelho coral + dourado + verde do troféu).
 
 ### Fluxo de renderização
 

@@ -90,52 +90,52 @@
   }
 }
 
-/* Theme: Copa 2026 (FIFA 26 official brand — eletric blue + magenta + teal) */
+/* Theme: Copa 2026 (Panini WC26 album vibe — coral red + gold + navy) */
 body[data-album="2026"] {
-  --bg: #f4f6fb;
+  --bg: #fff9f0;
   --surface: #ffffff;
-  --surface-muted: #e8eef7;
-  --text: #0f1a2e;
-  --text-muted: #5b6373;
-  --text-faint: #9098a8;
-  --border: #dbe3f0;
-  --border-strong: #b9c4d8;
+  --surface-muted: #fbf1dd;
+  --text: #1c1812;
+  --text-muted: #6b6155;
+  --text-faint: #a39685;
+  --border: #ece0c6;
+  --border-strong: #c9b692;
 
-  --primary: #1a4cd6;
-  --primary-strong: #0e36a3;
-  --primary-soft: #e3eaf9;
+  --primary: #c8102e;
+  --primary-strong: #9b0c25;
+  --primary-soft: #fde6e9;
   --primary-on: #ffffff;
 
-  --accent: #ff3d8b;
+  --accent: #d4a017;
 
-  --success: #00b388;
-  --success-strong: #008c69;
-  --success-soft: #dff7ee;
-  --success-border: #26d1a4;
+  --success: #2e7d32;
+  --success-strong: #1b5e20;
+  --success-soft: #e8f5e9;
+  --success-border: #66bb6a;
 }
 
 @media (prefers-color-scheme: dark) {
   body[data-album="2026"] {
-    --bg: #0f1426;
-    --surface: #1a2138;
-    --surface-muted: #222b45;
-    --text: #eef0f8;
-    --text-muted: #9aa4ba;
-    --text-faint: #646c7e;
-    --border: #2a3554;
-    --border-strong: #3e4a6c;
+    --bg: #16110b;
+    --surface: #211a12;
+    --surface-muted: #2c2317;
+    --text: #f5ead4;
+    --text-muted: #c2b08c;
+    --text-faint: #7d6f55;
+    --border: #3a2f1f;
+    --border-strong: #5a4a30;
 
-    --primary: #5b87ea;
-    --primary-strong: #7fa3f0;
-    --primary-soft: #1a2647;
-    --primary-on: #0f1426;
+    --primary: #e85b6f;
+    --primary-strong: #f47d8d;
+    --primary-soft: #3a1620;
+    --primary-on: #16110b;
 
-    --accent: #ff6ea8;
+    --accent: #ecc44a;
 
-    --success: #26d1a4;
-    --success-strong: #5fdab9;
-    --success-soft: #0d2922;
-    --success-border: #00b388;
+    --success: #66bb6a;
+    --success-strong: #a5d6a7;
+    --success-soft: #1f3220;
+    --success-border: #2e7d32;
   }
 }
 
