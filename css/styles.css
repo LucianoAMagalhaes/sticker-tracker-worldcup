@@ -246,6 +246,11 @@ body {
   border-radius: var(--radius-sm);
 }
 
+.album-picker__select option {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
 .album-picker__select:disabled {
   cursor: default;
   opacity: 0.7;
