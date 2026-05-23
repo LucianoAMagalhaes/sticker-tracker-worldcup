@@ -1,0 +1,112 @@
+{
+  "totalStickers": 678,
+  "selectionStickerLayout": [
+    { "number": 1, "type": "team" },
+    { "number": 2, "type": "shield" },
+    { "rangeStart": 3, "rangeEnd": 20, "type": "player" }
+  ],
+  "groups": [
+    {
+      "id": "A",
+      "name": "Grupo A",
+      "selections": [
+        { "code": "QAT", "name": "Catar" },
+        { "code": "ECU", "name": "Equador" },
+        { "code": "SEN", "name": "Senegal" },
+        { "code": "NED", "name": "Holanda" }
+      ]
+    },
+    {
+      "id": "B",
+      "name": "Grupo B",
+      "selections": [
+        { "code": "ENG", "name": "Inglaterra" },
+        { "code": "IRN", "name": "Irã" },
+        { "code": "USA", "name": "Estados Unidos" },
+        { "code": "WAL", "name": "País de Gales" }
+      ]
+    },
+    {
+      "id": "C",
+      "name": "Grupo C",
+      "selections": [
+        { "code": "ARG", "name": "Argentina" },
+        { "code": "KSA", "name": "Arábia Saudita" },
+        { "code": "MEX", "name": "México" },
+        { "code": "POL", "name": "Polônia" }
+      ]
+    },
+    {
+      "id": "D",
+      "name": "Grupo D",
+      "selections": [
+        { "code": "FRA", "name": "França" },
+        { "code": "AUS", "name": "Austrália" },
+        { "code": "DEN", "name": "Dinamarca" },
+        { "code": "TUN", "name": "Tunísia" }
+      ]
+    },
+    {
+      "id": "E",
+      "name": "Grupo E",
+      "selections": [
+        { "code": "ESP", "name": "Espanha" },
+        { "code": "CRC", "name": "Costa Rica" },
+        { "code": "GER", "name": "Alemanha" },
+        { "code": "JPN", "name": "Japão" }
+      ]
+    },
+    {
+      "id": "F",
+      "name": "Grupo F",
+      "selections": [
+        { "code": "BEL", "name": "Bélgica" },
+        { "code": "CAN", "name": "Canadá" },
+        { "code": "MAR", "name": "Marrocos" },
+        { "code": "CRO", "name": "Croácia" }
+      ]
+    },
+    {
+      "id": "G",
+      "name": "Grupo G",
+      "selections": [
+        { "code": "BRA", "name": "Brasil" },
+        { "code": "SRB", "name": "Sérvia" },
+        { "code": "SUI", "name": "Suíça" },
+        { "code": "CMR", "name": "Camarões" }
+      ]
+    },
+    {
+      "id": "H",
+      "name": "Grupo H",
+      "selections": [
+        { "code": "POR", "name": "Portugal" },
+        { "code": "GHA", "name": "Gana" },
+        { "code": "URU", "name": "Uruguai" },
+        { "code": "KOR", "name": "Coreia do Sul" }
+      ]
+    }
+  ],
+  "specials": [
+    {
+      "id": "fwc",
+      "name": "Gerais",
+      "prefix": "FWC",
+      "type": "general",
+      "count": 29
+    },
+    {
+      "id": "coca",
+      "name": "Coca-Cola",
+      "prefix": "C",
+      "type": "coca",
+      "count": 8
+    },
+    {
+      "id": "unique",
+      "name": "Especial",
+      "type": "special",
+      "ids": ["00"]
+    }
+  ]
+}
