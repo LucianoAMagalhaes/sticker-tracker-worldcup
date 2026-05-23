@@ -1,5 +1,7 @@
 const ALBUM_DATA_URL = "data/album.json";
 const SPECIAL_PREFIX = "special:";
+const STORAGE_KEY = "sticker-tracker-wordcup2022:collection";
+const STATUS_CYCLE = ["missing", "owned", "duplicate"];
 
 const TYPE_LABELS = {
   team: "Time",
@@ -10,7 +12,15 @@ const TYPE_LABELS = {
   special: "Especial",
 };
 
+const STATUS_LABELS = {
+  missing: "faltando",
+  owned: "obtida",
+  duplicate: "repetida",
+};
+
 let activeSectionId = null;
+let sectionsIndex = null;
+let collection = {};
 
 async function loadAlbum() {
   const response = await fetch(ALBUM_DATA_URL);
@@ -18,6 +28,42 @@ async function loadAlbum() {
     throw new Error(`HTTP ${response.status} while loading ${ALBUM_DATA_URL}`);
   }
   return response.json();
+}
+
+function loadCollection() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return typeof parsed === "object" && parsed !== null ? parsed : {};
+  } catch (error) {
+    console.warn("Failed to load collection from storage:", error);
+    return {};
+  }
+}
+
+function saveCollection() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collection));
+  } catch (error) {
+    console.warn("Failed to save collection to storage:", error);
+  }
+}
+
+function getStatus(stickerId) {
+  return collection[stickerId] ?? "missing";
+}
+
+function cycleStatus(stickerId) {
+  const current = getStatus(stickerId);
+  const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(current) + 1) % STATUS_CYCLE.length];
+  if (next === "missing") {
+    delete collection[stickerId];
+  } else {
+    collection[stickerId] = next;
+  }
+  saveCollection();
+  return next;
 }
 
 function getSelectionStickers(selection, layout) {
@@ -76,15 +122,60 @@ function buildSectionsIndex(album) {
   return sections;
 }
 
-function renderOverview(album) {
-  const status = document.querySelector("#progress-overview .overview__status");
-  status.textContent =
-    `Álbum carregado: ${album.totalStickers} figurinhas em ${album.groups.length} grupos.`;
+function computeOverviewStats() {
+  let owned = 0;
+  let duplicate = 0;
+  let total = 0;
+  for (const section of sectionsIndex.values()) {
+    for (const sticker of section.stickers) {
+      total++;
+      const status = getStatus(sticker.id);
+      if (status === "owned") owned++;
+      else if (status === "duplicate") duplicate++;
+    }
+  }
+  const have = owned + duplicate;
+  const missing = total - have;
+  const pct = total > 0 ? Math.round((have / total) * 100) : 0;
+  return { total, have, owned, duplicate, missing, pct };
+}
+
+function computeSectionStats(section) {
+  let owned = 0;
+  let duplicate = 0;
+  for (const sticker of section.stickers) {
+    const status = getStatus(sticker.id);
+    if (status === "owned") owned++;
+    else if (status === "duplicate") duplicate++;
+  }
+  return {
+    total: section.stickers.length,
+    have: owned + duplicate,
+    owned,
+    duplicate,
+  };
+}
+
+function renderOverview() {
+  const overview = document.getElementById("progress-overview");
+  const stats = computeOverviewStats();
+  overview.innerHTML = `
+    <p class="overview__status">
+      <strong>${stats.have}</strong> de <strong>${stats.total}</strong> figurinhas (${stats.pct}%)
+    </p>
+    <div class="overview__bar" role="progressbar" aria-valuemin="0" aria-valuemax="${stats.total}" aria-valuenow="${stats.have}">
+      <div class="overview__fill" style="width: ${stats.pct}%"></div>
+    </div>
+    <p class="overview__breakdown">
+      ${stats.duplicate} repetida${stats.duplicate === 1 ? "" : "s"} para troca ·
+      ${stats.missing} faltando
+    </p>
+  `;
 }
 
 function renderError(error) {
-  const status = document.querySelector("#progress-overview .overview__status");
-  status.textContent = `Erro ao carregar álbum: ${error.message}`;
+  const overview = document.getElementById("progress-overview");
+  overview.innerHTML = `<p class="overview__status">Erro ao carregar álbum: ${error.message}</p>`;
 }
 
 function navItemHtml(id, name) {
@@ -119,23 +210,50 @@ function renderNav(album) {
   nav.innerHTML = groupsHtml + specialsHtml;
 }
 
+function stickerAriaLabel(sticker, status) {
+  const typeLabel = TYPE_LABELS[sticker.type] ?? "";
+  return `Figurinha ${sticker.id} (${typeLabel}) — ${STATUS_LABELS[status]}`;
+}
+
 function stickerCardHtml(sticker) {
+  const status = getStatus(sticker.id);
   const typeLabel = TYPE_LABELS[sticker.type] ?? "";
   return `
-    <li class="sticker sticker--${sticker.type}" data-sticker-id="${sticker.id}">
-      <span class="sticker__code">${sticker.id}</span>
-      <span class="sticker__type">${typeLabel}</span>
+    <li>
+      <button type="button" class="sticker"
+              data-sticker-id="${sticker.id}"
+              data-type="${sticker.type}"
+              data-status="${status}"
+              aria-label="${stickerAriaLabel(sticker, status)}">
+        <span class="sticker__code">${sticker.id}</span>
+        <span class="sticker__type">${typeLabel}</span>
+      </button>
     </li>
   `;
 }
 
+function sectionMetaText(section) {
+  const stats = computeSectionStats(section);
+  const parts = [`${stats.have}/${stats.total} obtidas`];
+  if (stats.duplicate > 0) {
+    parts.push(`${stats.duplicate} repetida${stats.duplicate === 1 ? "" : "s"}`);
+  }
+  return parts.join(" · ");
+}
+
 function renderStickers(section) {
   const container = document.getElementById("stickers-container");
-  const count = section.stickers.length;
   container.innerHTML = `
-    <p class="content__meta">${count} ${count === 1 ? "figurinha" : "figurinhas"}</p>
+    <p class="content__meta" id="content-meta">${sectionMetaText(section)}</p>
     <ul class="sticker-grid">${section.stickers.map(stickerCardHtml).join("")}</ul>
   `;
+}
+
+function updateContentMeta() {
+  const section = sectionsIndex.get(activeSectionId);
+  if (!section) return;
+  const meta = document.getElementById("content-meta");
+  if (meta) meta.textContent = sectionMetaText(section);
 }
 
 function renderContent(section) {
@@ -146,8 +264,8 @@ function renderContent(section) {
   renderStickers(section);
 }
 
-function setActiveSection(sectionId, sections) {
-  const section = sections.get(sectionId);
+function setActiveSection(sectionId) {
+  const section = sectionsIndex.get(sectionId);
   if (!section) return;
 
   activeSectionId = sectionId;
@@ -165,25 +283,42 @@ function setActiveSection(sectionId, sections) {
   renderContent(section);
 }
 
-function attachNavHandler(sections) {
+function handleStickerClick(card) {
+  const stickerId = card.dataset.stickerId;
+  const type = card.dataset.type;
+  const newStatus = cycleStatus(stickerId);
+  card.dataset.status = newStatus;
+  card.setAttribute("aria-label", stickerAriaLabel({ id: stickerId, type }, newStatus));
+  updateContentMeta();
+  renderOverview();
+}
+
+function attachHandlers() {
   document.getElementById("groups-nav").addEventListener("click", (event) => {
     const button = event.target.closest(".nav-item");
     if (!button) return;
-    setActiveSection(button.dataset.sectionId, sections);
+    setActiveSection(button.dataset.sectionId);
+  });
+
+  document.getElementById("stickers-container").addEventListener("click", (event) => {
+    const card = event.target.closest(".sticker");
+    if (!card) return;
+    handleStickerClick(card);
   });
 }
 
 async function main() {
   try {
     const album = await loadAlbum();
-    const sections = buildSectionsIndex(album);
+    sectionsIndex = buildSectionsIndex(album);
+    collection = loadCollection();
 
-    renderOverview(album);
+    renderOverview();
     renderNav(album);
-    attachNavHandler(sections);
+    attachHandlers();
 
     const firstSelectionId = album.groups[0].selections[0].code;
-    setActiveSection(firstSelectionId, sections);
+    setActiveSection(firstSelectionId);
   } catch (error) {
     renderError(error);
     console.error(error);
