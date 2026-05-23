@@ -1,13 +1,19 @@
-# Sticker Tracker — Copa do Mundo 2022
+# Sticker Tracker — Álbuns da Copa do Mundo
 
-Aplicativo web simples para gerenciar a coleção do álbum Panini da Copa do Mundo de 2022. Marca o que você tem, o que falta e o que tem de repetida para troca — tudo offline, com os dados salvos no próprio navegador.
+Aplicativo web simples para gerenciar coleções dos álbuns Panini da Copa do Mundo. Marca o que você tem, o que falta e o que tem de repetida para troca — tudo offline, com os dados salvos no próprio navegador. Suporta múltiplos álbuns: troque entre eles pelo seletor no topo da página.
 
-**Acesse online:** <https://lucianoamagalhaes.github.io/sticker-tracker-wordcup2022/>
+**Acesse online:** <https://lucianoamagalhaes.github.io/sticker-tracker-worldcup/>
+
+## Álbuns suportados
+
+- **Copa do Mundo 2022** — completo (678 figurinhas)
+- **Copa do Mundo 2026** — em construção (será adicionado em breve com 980 figurinhas, 48 seleções, 12 grupos do sorteio oficial)
 
 ## Funcionalidades
 
-- Catálogo completo do álbum: **678 figurinhas** (32 seleções × 20 + 29 Gerais + 8 Coca-Cola + 1 especial)
-- Navegação por grupo da copa (A–H) + bloco de Especiais
+- **Seletor de álbum** no header — coleção e filtro independentes por álbum
+- Catálogo completo do álbum 2022: **678 figurinhas** (32 seleções × 20 + 29 Gerais + 8 Coca-Cola + 1 especial)
+- Navegação por grupo da copa + bloco de Especiais
 - Cada clique cicla o status da figurinha: **falta → tenho → repetida → falta**
 - Progresso ao vivo: total geral (com barra), por seleção (na sidebar) e por seção (acima do grid)
 - Filtros por status: Todas / Faltantes / Obtidas / Repetidas
@@ -15,7 +21,7 @@ Aplicativo web simples para gerenciar a coleção do álbum Panini da Copa do Mu
   - **Minhas repetidas** — lista tudo que você tem de extra, agrupado por seleção
   - **Minhas faltantes** — lista tudo que está faltando, agrupado por seleção
 - **Copiar lista** para troca, com formato pronto para colar em WhatsApp/email
-- **Exportar / Importar** coleção em JSON (backup e sincronização entre dispositivos)
+- **Exportar / Importar** coleção em JSON (backup e sincronização entre dispositivos), por álbum
 - Persistência local no `localStorage` — funciona offline
 - Dark mode automático (acompanha o tema do sistema operacional)
 - Responsivo (desktop, tablet, mobile)
@@ -53,16 +59,17 @@ npx serve
 ## Estrutura de pastas
 
 ```text
-sticker-tracker-wordcup2022/
-├── index.html          # Estrutura HTML principal
+sticker-tracker-worldcup/
+├── index.html              # Estrutura HTML principal
 ├── css/
-│   └── styles.css      # Estilos (tokens CSS, light + dark)
+│   └── styles.css          # Estilos (tokens CSS, light + dark)
 ├── js/
-│   └── main.js         # Módulo ES com toda a lógica
+│   └── main.js             # Módulo ES com toda a lógica
 ├── data/
-│   └── album.json      # Catálogo do álbum (grupos, seleções, especiais)
-├── CLAUDE.md           # Visão do projeto e convenções
-└── README.md           # Este arquivo
+│   ├── albums.json         # Manifest com a lista de álbuns
+│   └── album-<id>.json     # Catálogo de cada álbum (ex: album-2022.json)
+├── CLAUDE.md               # Visão do projeto e convenções
+└── README.md               # Este arquivo
 ```
 
 ## Como usar
@@ -103,12 +110,16 @@ Em qualquer view com lista (filtro ativo ou views especiais), aparece o botão *
 
 Cole no WhatsApp, email ou onde for trocar.
 
+### Trocando de álbum
+
+No header, à direita do título, tem o seletor **Álbum**. Mude entre Copa 2022 e Copa 2026 (quando disponível). Cada álbum mantém sua própria coleção, filtro ativo e contadores — não há mistura entre eles.
+
 ### Backup e sincronização entre dispositivos
 
 A coleção fica no `localStorage` do seu navegador — isso significa que abrir noutro celular ou outro browser começa zerado. Para sincronizar:
 
-- **Exportar coleção** baixa um arquivo `colecao-copa-2022-AAAA-MM-DD.json` com seu estado atual
-- **Importar coleção** carrega esse JSON em outro dispositivo
+- **Exportar coleção** baixa um arquivo `colecao-copa-<id>-AAAA-MM-DD.json` (ex: `colecao-copa-2022-2026-05-23.json`) com o estado atual do álbum selecionado
+- **Importar coleção** carrega esse JSON no álbum atualmente ativo em outro dispositivo
 
 ## Formato dos códigos
 
