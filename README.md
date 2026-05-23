@@ -6,14 +6,16 @@ Aplicativo web simples para gerenciar coleções dos álbuns Panini da Copa do M
 
 ## Álbuns suportados
 
-- **Copa do Mundo 2022** — completo (678 figurinhas)
-- **Copa do Mundo 2026** — em construção (será adicionado em breve com 980 figurinhas, 48 seleções, 12 grupos do sorteio oficial)
+- **Copa do Mundo 2026** _(default na primeira visita)_ — 992 figurinhas (48 seleções × 20 + 9 Introduction + 11 FIFA Museum + 12 Coca-Cola), 12 grupos do sorteio oficial de 5 dez 2025
+- **Copa do Mundo 2022** — 678 figurinhas (32 seleções × 20 + 29 Gerais + 8 Coca-Cola + 1 Especial)
+
+Cada álbum tem coleção, filtro e contadores próprios — troca pelo seletor no header.
 
 ## Funcionalidades
 
 - **Seletor de álbum** no header — coleção e filtro independentes por álbum
-- Catálogo completo do álbum 2022: **678 figurinhas** (32 seleções × 20 + 29 Gerais + 8 Coca-Cola + 1 especial)
-- Navegação por grupo da copa + bloco de Especiais
+- Catálogos completos de Copa 2022 (678 figurinhas) e Copa 2026 (992 figurinhas)
+- Navegação por grupo da copa + blocos de Especiais
 - Cada clique cicla o status da figurinha: **falta → tenho → repetida → falta**
 - Progresso ao vivo: total geral (com barra), por seleção (na sidebar) e por seção (acima do grid)
 - Filtros por status: Todas / Faltantes / Obtidas / Repetidas
@@ -112,21 +114,32 @@ Cole no WhatsApp, email ou onde for trocar.
 
 ### Trocando de álbum
 
-No header, à direita do título, tem o seletor **Álbum**. Mude entre Copa 2022 e Copa 2026 (quando disponível). Cada álbum mantém sua própria coleção, filtro ativo e contadores — não há mistura entre eles.
+No header, à direita do título, tem o seletor **Álbum**. Mude entre Copa 2022 e Copa 2026. Cada álbum mantém sua própria coleção, filtro ativo e contadores — não há mistura entre eles. Na primeira visita o app abre no álbum 2026; a escolha fica salva e é restaurada na próxima abertura.
 
 ### Backup e sincronização entre dispositivos
 
 A coleção fica no `localStorage` do seu navegador — isso significa que abrir noutro celular ou outro browser começa zerado. Para sincronizar:
 
-- **Exportar coleção** baixa um arquivo `colecao-copa-<id>-AAAA-MM-DD.json` (ex: `colecao-copa-2022-2026-05-23.json`) com o estado atual do álbum selecionado
+- **Exportar coleção** baixa um arquivo `colecao-copa-<id>-AAAA-MM-DD.json` (ex: `colecao-copa-2026-2026-05-23.json`) com o estado atual do álbum selecionado
 - **Importar coleção** carrega esse JSON no álbum atualmente ativo em outro dispositivo
 
 ## Formato dos códigos
 
+### Comum aos dois álbuns
+
 - **Seleções**: três letras + número de 1 a 20 (sem espaço). Ex: `BRA1` (foto do time), `BRA2` (escudo), `BRA3`–`BRA20` (jogadores)
+
+### Copa 2022
+
 - **Gerais**: `FWC1` a `FWC29` (troféu, mascote, estádios, legends, etc.)
 - **Coca-Cola**: `C1` a `C8`
 - **Especial**: `00`
+
+### Copa 2026
+
+- **Introduction**: `FWC1` a `FWC9` (logo Panini, emblema, mascotes, slogan, bola, cidades-sede)
+- **FIFA Museum**: `FWC10` a `FWC20` (campeões mundiais de 1934 a 2022)
+- **Coca-Cola**: `C1` a `C12`
 
 ## Convenções do projeto
 
