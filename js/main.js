@@ -806,6 +806,10 @@ function updateDocumentTitle() {
   document.title = `${label} — Sticker Tracker`;
 }
 
+function applyAlbumTheme() {
+  document.body.dataset.album = activeAlbumId;
+}
+
 async function switchAlbum(newAlbumId) {
   if (newAlbumId === activeAlbumId) return;
   try {
@@ -816,6 +820,7 @@ async function switchAlbum(newAlbumId) {
     collection = loadCollection();
     currentFilter = loadFilter();
     updateDocumentTitle();
+    applyAlbumTheme();
     renderOverview();
     renderNav(album);
     const firstSelectionId = album.groups[0].selections[0].code;
@@ -889,6 +894,7 @@ async function main() {
     currentFilter = loadFilter();
 
     updateDocumentTitle();
+    applyAlbumTheme();
     renderAlbumSelector();
     renderOverview();
     renderNav(album);
