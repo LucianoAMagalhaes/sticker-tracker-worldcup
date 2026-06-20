@@ -5,9 +5,10 @@
   "year": 2026,
   "totalStickers": 992,
   "selectionStickerLayout": [
-    { "number": 1, "type": "team" },
-    { "number": 2, "type": "shield" },
-    { "rangeStart": 3, "rangeEnd": 20, "type": "player" }
+    { "number": 1, "type": "shield" },
+    { "rangeStart": 2, "rangeEnd": 12, "type": "player" },
+    { "number": 13, "type": "team" },
+    { "rangeStart": 14, "rangeEnd": 20, "type": "player" }
   ],
   "groups": [
     {
