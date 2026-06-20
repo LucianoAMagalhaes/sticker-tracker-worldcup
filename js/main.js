@@ -50,8 +50,15 @@ function filterStorageKey(albumId) {
   return `${STORAGE_NAMESPACE}:${albumId}:filter`;
 }
 
+// Always revalidate data files with the server (ETag-based 304 when
+// unchanged) so catalog edits propagate immediately instead of waiting
+// for the GitHub Pages max-age=600 cache to expire.
+function fetchData(url) {
+  return fetch(url, { cache: "no-cache" });
+}
+
 async function loadAlbumsManifest() {
-  const response = await fetch(ALBUMS_MANIFEST_URL);
+  const response = await fetchData(ALBUMS_MANIFEST_URL);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status} while loading ${ALBUMS_MANIFEST_URL}`);
   }
@@ -61,7 +68,7 @@ async function loadAlbumsManifest() {
 async function loadAlbumById(albumId) {
   const entry = albumsManifest.albums.find((a) => a.id === albumId);
   if (!entry) throw new Error(`Unknown album id: ${albumId}`);
-  const response = await fetch(entry.file);
+  const response = await fetchData(entry.file);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status} while loading ${entry.file}`);
   }
