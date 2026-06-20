@@ -42,9 +42,9 @@ Cada push em `main` republica automaticamente. O repositório foi renomeado de `
 
 - Cada seleção tem **20 figurinhas**: 1 foto do time + 1 escudo + 18 jogadores.
 - Código: 3 letras da seleção + número de 1 a 20, **sem espaço**.
-  - `XXX1` → foto do time
-  - `XXX2` → escudo
-  - `XXX3` a `XXX20` → jogadores
+- A posição da foto do time e do escudo dentro dos 20 slots **varia por álbum** (definida em `selectionStickerLayout` de cada catálogo):
+  - **2022**: `XXX1` → foto do time, `XXX2` → escudo, `XXX3`–`XXX20` → jogadores.
+  - **2026**: `XXX1` → escudo, `XXX13` → foto do time, demais (`XXX2`–`XXX12`, `XXX14`–`XXX20`) → jogadores.
 
 ### Copa do Mundo 2022 (`album-2022.json`)
 
