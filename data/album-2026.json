@@ -3,7 +3,7 @@
   "name": "Copa do Mundo 2026",
   "shortName": "Copa 2026",
   "year": 2026,
-  "totalStickers": 992,
+  "totalStickers": 994,
   "selectionStickerLayout": [
     { "number": 1, "type": "shield" },
     { "rangeStart": 2, "rangeEnd": 12, "type": "player" },
@@ -137,20 +137,20 @@
       "id": "intro",
       "name": "Introduction",
       "type": "general",
-      "ids": ["FWC1", "FWC2", "FWC3", "FWC4", "FWC5", "FWC6", "FWC7", "FWC8", "FWC9"]
+      "ids": ["00", "FWC1", "FWC2", "FWC3", "FWC4", "FWC5", "FWC6", "FWC7", "FWC8"]
     },
     {
       "id": "museum",
       "name": "FIFA Museum",
       "type": "general",
-      "ids": ["FWC10", "FWC11", "FWC12", "FWC13", "FWC14", "FWC15", "FWC16", "FWC17", "FWC18", "FWC19", "FWC20"]
+      "ids": ["FWC9", "FWC10", "FWC11", "FWC12", "FWC13", "FWC14", "FWC15", "FWC16", "FWC17", "FWC18", "FWC19"]
     },
     {
       "id": "coca",
       "name": "Coca-Cola",
-      "prefix": "C",
+      "prefix": "CC",
       "type": "coca",
-      "count": 12
+      "count": 14
     }
   ]
 }

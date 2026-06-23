@@ -68,12 +68,12 @@ Seleções por Grupo:
 ### Copa do Mundo 2026 (`album-2026.json`)
 
 - 48 seleções × 20 = 960 figurinhas
-- **Introduction (FWC1–FWC9)**: 9 figurinhas (logo Panini, emblema, mascotes, slogan, bola, cidades-sede)
-- **FIFA Museum (FWC10–FWC20)**: 11 figurinhas (campeões mundiais de 1934 a 2022)
-- **Coca-Cola (C)**: `C1` a `C12` → 12 figurinhas promocionais (em rótulos da Coca, fora dos envelopes)
-- **Total**: 960 + 9 + 11 + 12 = **992 figurinhas**
+- **Introduction (`00` + FWC1–FWC8)**: 9 figurinhas (a primeira tem código especial `00`; logo Panini, emblema, mascotes, slogan, bola, cidades-sede)
+- **FIFA Museum (FWC9–FWC19)**: 11 figurinhas (campeões mundiais de 1934 a 2022)
+- **Coca-Cola (CC)**: `CC1` a `CC14` → 14 figurinhas promocionais (em rótulos da Coca, fora dos envelopes)
+- **Total**: 960 + 9 + 11 + 14 = **994 figurinhas**
 
-> Nota: a Panini divulga o álbum como tendo **980 figurinhas** (48×20 + 20 especiais). As 12 Coca-Cola são promocionais e não entram nesse total oficial; aqui são incluídas no `totalStickers` por consistência com o catálogo do 2022.
+> Nota: a Panini divulga o álbum como tendo **980 figurinhas** (48×20 + 20 especiais). As 14 Coca-Cola são promocionais e não entram nesse total oficial; aqui são incluídas no `totalStickers` por consistência com o catálogo do 2022.
 
 Seleções por Grupo (sorteio de 5 dez 2025 em Washington):
 
@@ -115,7 +115,7 @@ Estrutura compacta com metadados. As figurinhas individuais não são listadas �
 - Cabeçalho: `id`, `name`, `shortName`, `year`, `totalStickers`.
 - `selectionStickerLayout` define a regra (1=team, 2=shield, 3–20=player) usada para gerar as figurinhas de qualquer seleção a partir do código de 3 letras.
 - `groups` → lista de grupos, cada um com `id`, `name` e `selections` (cada `{code, name}`).
-- `specials` lista os blocos extras. Dois formatos: `prefix + count` (gera `${prefix}1..N`, usado por Coca-Cola e pelos FWC do 2022) ou `ids` explícito (usado quando dois blocos compartilham o mesmo prefixo — ex: Introduction `FWC1–9` e FIFA Museum `FWC10–20` no 2026 — ou quando o id não segue padrão sequencial — ex: `["00"]` no 2022).
+- `specials` lista os blocos extras. Dois formatos: `prefix + count` (gera `${prefix}1..N`, usado por Coca-Cola e pelos FWC do 2022) ou `ids` explícito (usado quando dois blocos compartilham o mesmo prefixo — ex: Introduction `00` + `FWC1–8` e FIFA Museum `FWC9–19` no 2026 — ou quando o id não segue padrão sequencial — ex: `["00"]` no 2022).
 
 ### Identificadores em inglês (convenção)
 
@@ -192,10 +192,10 @@ sticker-tracker-worldcup/
 Notas que sobrevivem ao plano original de três PRs (refactor multi-álbum + catálogo 2026 + docs) e ainda servem como referência:
 
 - **Renomeação do repositório**: de `sticker-tracker-wordcup2022` para `sticker-tracker-worldcup`. O GitHub redireciona operações `git` para a URL antiga, mas o Pages no nome antigo retorna 404 — Pages é derivado do nome do repo e não tem redirect automático.
-- **Pesquisa do álbum 2026 (maio/2026)**: total oficial Panini é **980 figurinhas** em 112 páginas (48×20 + 20 especiais). As 12 Coca-Cola são promocionais (em rótulos da Coca, fora dos envelopes) e foram adicionadas ao `totalStickers` por consistência com o 2022 → 992 no catálogo.
+- **Pesquisa do álbum 2026 (maio/2026)**: total oficial Panini é **980 figurinhas** em 112 páginas (48×20 + 20 especiais). As 14 Coca-Cola (`CC1`–`CC14`) são promocionais (em rótulos da Coca, fora dos envelopes) e foram adicionadas ao `totalStickers` por consistência com o 2022 → 994 no catálogo.
 - **Sobre as "68 metalizadas"**: imprensa brasileira fala em 68 figurinhas metalizadas (48 escudos + 16 estádios + 4 institucionais). Isso conta os 48 escudos que **já estão dentro das páginas das seleções** (versão FOIL do slot do escudo). Não são bloco extra — não afetam a contagem.
 - **Ausência notável no 2026**: Itália (eliminada na repescagem europeia pela Bósnia).
-- **Decisão sobre os especiais 2026**: Intro e FIFA Museum modelados como dois blocos navegáveis distintos compartilhando o prefixo `FWC` (1–9 e 10–20), via `ids` explícito no JSON — espelha a numeração real da Panini.
+- **Decisão sobre os especiais 2026**: Intro e FIFA Museum modelados como dois blocos navegáveis distintos, via `ids` explícito no JSON — espelha a numeração real da Panini. A Introduction começa com a figurinha de código especial `00` seguida de `FWC1–8`; o FIFA Museum vai de `FWC9` a `FWC19`.
 
 ## Ideias futuras
 
